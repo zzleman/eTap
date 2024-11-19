@@ -3,19 +3,43 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronDown,
   faMagnifyingGlass,
+  faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { useState } from 'react';
+import { useEffect } from 'react';
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [categories, setCategories] = useState();
+
   const toggleNav = () => {
     setOpen(!open);
   };
+
+  const getCategories = async () => {
+    const querySnapshot = await getDocs(collection(db, 'JobCategories'));
+    const categories = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    setCategories(categories);
+  };
+  useEffect(() => {
+    getCategories();
+  }, []);
   return (
     <div className="flex flex-col gap-5">
       <div className="relative flex gap-7 items-center text-white text-sm">
         <select name="" id="" className="w-[350px] h-10 text-neutral-400 px-5">
-          <option value="">Сфера деятельности</option>
-          <option value="">salam</option>
+          {categories &&
+            categories.map(category => (
+              <option key={category.id} value="">
+                {category.name}
+              </option>
+            ))}
         </select>
         <select name="" id="" className="w-40 h-10 text-neutral-400 px-5">
           <option value="">Город</option>
@@ -40,7 +64,7 @@ const Navbar = () => {
             <span className="mx-2">
               <FontAwesomeIcon
                 className="text-white text-sm"
-                icon={faChevronDown}
+                icon={open ? faChevronUp : faChevronDown}
               />
             </span>
           </button>

@@ -26,7 +26,7 @@ const Login = () => {
       setUser(user);
       setTimeout(() => {
         navigate('/');
-      }, 1000);
+      }, 2000);
       toast.success('User logged in successfully!', { position: 'top-center' });
       actions.resetForm();
     } catch (error) {
