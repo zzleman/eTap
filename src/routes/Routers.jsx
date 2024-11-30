@@ -7,6 +7,7 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Vacancies from '../pages/Vacancies';
+import VacancySingle from '../pages/VacancySingle';
 const Routers = () => {
   const currentUser = useSelector(state => state.auth.currentUser);
   const RequireAuth = ({ children }) => {
@@ -41,6 +42,7 @@ const Routers = () => {
           </RequireAuth>
         }
       />
+      <Route path="/vacancies/:id" element={<VacancySingle />} />
     </Routes>
   );
 };

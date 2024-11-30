@@ -4,6 +4,8 @@ import { db } from '../firebase';
 import { useFormik } from 'formik';
 import { CreateVacancySchema } from '../schemas/CreateVacancySchema';
 import { toast } from 'react-toastify';
+import TextEditor from '../components/Editor/TextEditor';
+import { serverTimestamp } from 'firebase/firestore'; // Correct import for Firestore v9+
 
 const CreateVacancy = () => {
   const [categories, setCategories] = useState([]);
@@ -23,7 +25,7 @@ const CreateVacancy = () => {
         location: values.location,
         companyLogo: values.companyLogo,
         companyDescription: values.companyDescription,
-        createdAt: Timestamp.now(),
+        createdAt: serverTimestamp(),
       });
 
       toast.success('Vacancy created successfully!', {
@@ -243,7 +245,7 @@ const CreateVacancy = () => {
                 <label className="font-bold" htmlFor="jobDescription">
                   Job Description
                 </label>
-                <textarea
+                <TextEditor
                   id="jobDescription"
                   name="jobDescription"
                   value={values.jobDescription}
@@ -339,7 +341,7 @@ const CreateVacancy = () => {
                 <label className="font-bold" htmlFor="companyDescription">
                   Company Description
                 </label>
-                <textarea
+                <TextEditor
                   id="companyDescription"
                   name="companyDescription"
                   value={values.companyDescription}

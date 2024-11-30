@@ -41,7 +41,6 @@ const VacancyList = () => {
   useEffect(() => {
     getVacancies();
   }, []);
-
   return (
     <div className="flex flex-col gap-7">
       <div className="top flex justify-between px-36">

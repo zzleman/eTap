@@ -48,6 +48,5 @@ export const CreateVacancySchema = Yup.object().shape({
     ),
   companyDescription: Yup.string()
     .min(10, 'Company description must be at least 10 characters')
-    .max(1000, 'Company description must not exceed 1000 characters')
     .required('Company description is required'),
 });
