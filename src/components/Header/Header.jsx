@@ -28,15 +28,22 @@ const Header = () => {
             src={etapLogo}
             alt="e-Tap Logo"
           />
-          <p>
-            Работа{' '}
-            <span>
+          <ul className="flex gap-3">
+            <li className="flex gap-1 items-center">
+              Для ищущих работу
               <FontAwesomeIcon
                 icon={faChevronDown}
                 style={{ color: '#ffffff' }}
               />
-            </span>
-          </p>
+            </li>
+            <li className="flex gap-1 items-center">
+              Для ищущих рабочий
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                style={{ color: '#ffffff' }}
+              />
+            </li>
+          </ul>
         </div>
         <div className="right flex gap-7 items-center">
           <ul className="flex gap-5">

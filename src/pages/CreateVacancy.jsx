@@ -5,7 +5,7 @@ import { useFormik } from 'formik';
 import { CreateVacancySchema } from '../schemas/CreateVacancySchema';
 import { toast } from 'react-toastify';
 import TextEditor from '../components/Editor/TextEditor';
-import { serverTimestamp } from 'firebase/firestore'; // Correct import for Firestore v9+
+import { serverTimestamp } from 'firebase/firestore';
 
 const CreateVacancy = () => {
   const [categories, setCategories] = useState([]);
@@ -81,13 +81,11 @@ const CreateVacancy = () => {
 
   return (
     <div className="py-10 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-5 text-center">
-        Разместить вакансию
-      </h1>
+      <h1 className="text-2xl font-bold mb-5">Разместить вакансию</h1>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-        <div className="border p-10 shadow-md">
+        <div>
           <div className="job-info my-5">
-            <h1 className="text-red-500 text-xl mb-3">
+            <h1 className="text-[#563D7C] font-bold text-xl mb-3">
               First, tell us about the position
             </h1>
             <div className="grid grid-cols-12 w-12/12 gap-5">
@@ -233,9 +231,11 @@ const CreateVacancy = () => {
                   onBlur={handleBlur}
                   className="h-10 border outline-none px-3 text-neutral-500"
                 >
-                  <option value="">Select Job Type</option>
+                  <option value="">Выберите тип занятости</option>
                   <option value="full-time">Full-time</option>
                   <option value="part-time">Part-time</option>
+                  <option value="internship">Internship</option>
+                  <option value="freelance">Freelance</option>
                 </select>
                 {errors.jobType && touched.jobType && (
                   <span className="text-red-500 text-xs">{errors.jobType}</span>
@@ -262,11 +262,10 @@ const CreateVacancy = () => {
             </div>
           </div>
           <div className="company-info">
-            <h1 className="text-red-500 mb-5 text-xl">
+            <h1 className="text-[#563D7C] font-bold mb-5 text-xl">
               Tell Us More About Your Company
             </h1>
             <div className="grid grid-cols-12 gap-5">
-              {/* Company Name */}
               <div className="form-group flex flex-col gap-2 col-span-6">
                 <label className="font-bold" htmlFor="companyName">
                   Company Name
@@ -289,7 +288,6 @@ const CreateVacancy = () => {
                 )}
               </div>
 
-              {/* Location */}
               <div className="form-group flex flex-col gap-2 col-span-6">
                 <label className="font-bold" htmlFor="location">
                   Location
@@ -297,16 +295,21 @@ const CreateVacancy = () => {
                 <span className="text-xs text-neutral-400">
                   Enter your company or organization’s location.
                 </span>
-                <input
-                  type="text"
+                <select
                   id="location"
                   name="location"
                   value={values.location}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="border h-10 outline-none px-3 text-neutral-500"
-                  placeholder="Location"
-                />
+                  className="h-10 border outline-none px-3 text-neutral-500"
+                >
+                  <option value="">Select Location</option>
+                  <option value="baku">Baku</option>
+                  <option value="sumgayit">Sumqayit</option>
+                  <option value="ganja">Ganja</option>
+                  <option value="nakchivan">Nakhcivan</option>
+                </select>
+
                 {errors.location && touched.location && (
                   <p className="text-red-500 text-xs">{errors.location}</p>
                 )}
@@ -335,8 +338,6 @@ const CreateVacancy = () => {
                   <p className="text-red-500 text-xs">{errors.logo}</p>
                 )}
               </div>
-
-              {/* Company Description */}
               <div className="form-group flex flex-col gap-2 col-span-12">
                 <label className="font-bold" htmlFor="companyDescription">
                   Company Description
@@ -364,10 +365,10 @@ const CreateVacancy = () => {
             </div>
           </div>
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-center">
           <button
             type="submit"
-            className="w-40 h-11 bg-red-500 text-white rounded-sm"
+            className="w-40 h-11 border border-[#563D7C] rounded-sm text-xs mt-3"
             disabled={isSubmitting}
           >
             Elani paylas

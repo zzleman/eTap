@@ -26,15 +26,14 @@ export const CreateVacancySchema = Yup.object().shape({
     .required('Job type is required'),
   jobDescription: Yup.string()
     .min(10, 'Job description must be at least 10 characters')
-    .max(1000, 'Job description must not exceed 1000 characters')
+    .max(9000, 'Job description must not exceed 4000 characters')
     .required('Job description is required'),
   companyName: Yup.string()
     .min(2, 'Company name must be at least 2 characters')
     .max(100, 'Company name must not exceed 100 characters')
     .required('Company name is required'),
   location: Yup.string()
-    .min(2, 'Location must be at least 2 characters')
-    .max(100, 'Location must not exceed 100 characters')
+    .oneOf(['baku', 'sumgayit', 'ganja', 'nakchivan'])
     .required('Location is required'),
   companyLogo: Yup.mixed()
     .nullable()

@@ -46,7 +46,7 @@ const VacancyList = () => {
       <div className="top flex justify-between px-36">
         <h3 className="font-bold text-xl">Вакансии дня в Азербайджане</h3>
         <p className="text-xs">
-          45 874 561 актуальные вакансии
+          {vacancies.length} актуальные вакансии
           <span className="pl-3 text-[#695389]">+ 22 сегодня</span>
         </p>
       </div>

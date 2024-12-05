@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const VacancyCategories = () => {
   const [categories, setCategories] = useState();
+  const navigate = useNavigate();
   const getCategories = async () => {
     const querySnapshot = await getDocs(collection(db, 'JobCategories'));
     const categories = querySnapshot.docs.map(doc => ({
@@ -13,6 +15,10 @@ const VacancyCategories = () => {
     }));
 
     setCategories(categories);
+  };
+
+  const handleNavigationToVacancies = () => {
+    navigate(`/vacancies/`);
   };
 
   useEffect(() => {
@@ -31,8 +37,9 @@ const VacancyCategories = () => {
         {categories &&
           categories.map(category => (
             <li
-              className="flex items-start gap-3 relative pl-6"
+              className="flex items-start gap-3 relative pl-6 cursor-pointer"
               key={category.id}
+              onClick={handleNavigationToVacancies}
             >
               <span className="absolute left-0 top-0.5 text-black">•</span>
               {category.name}
