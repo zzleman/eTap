@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from '../firebase';
-import CreateResume from '../pages/CreateResume';
+import CreateResumes from '../pages/CreateResumes';
 import CreateVacancy from '../pages/CreateVacancy';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
@@ -35,7 +35,6 @@ const Routers = () => {
           </RequireAuth>
         }
       />
-
       <Route
         path="/createVacancy"
         element={
@@ -45,11 +44,19 @@ const Routers = () => {
         }
       />
       <Route path="/vacancies/:categoryId/:id" element={<VacancySingle />} />
-      <Route
+      {/* <Route
         path="/createResume"
         element={
           <RequireAuth>
             <CreateResume />
+          </RequireAuth>
+        }
+      /> */}
+      <Route
+        path="/createResumes"
+        element={
+          <RequireAuth>
+            <CreateResumes />
           </RequireAuth>
         }
       />
