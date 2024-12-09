@@ -10,6 +10,7 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Resumes from '../pages/Resumes';
+import ResumeSingle from '../pages/ResumeSingle';
 import Vacancies from '../pages/Vacancies';
 import VacancySingle from '../pages/VacancySingle';
 const Routers = () => {
@@ -31,7 +32,7 @@ const Routers = () => {
         }
       />
       <Route
-        path="/vacancies/all"
+        path="/vacancies"
         element={
           <RequireAuth>
             <Vacancies />
@@ -47,6 +48,7 @@ const Routers = () => {
         }
       />
       <Route path="/vacancies/:categoryId/:id" element={<VacancySingle />} />
+      <Route path="/resumes/:id" element={<ResumeSingle />} />
 
       <Route
         path="/createResumes"

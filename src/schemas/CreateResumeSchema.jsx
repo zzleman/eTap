@@ -56,6 +56,7 @@ export const schema = z.object({
   position: z.string().min(5, { message: 'Enter the position' }),
   salaryRange: z.string().min(1, { message: 'Choose a salary range' }),
   experience: z.string().min(1, { message: 'Choose an experience' }),
+  jobCategory: z.string().min(1, { message: 'Choose a category' }),
   work: z.array(
     z.object({
       skills: z

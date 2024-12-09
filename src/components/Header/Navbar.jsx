@@ -48,10 +48,15 @@ const Navbar = () => {
       }
     });
 
-    const basePath = '/vacancies/all';
-    const updatedPath = `${basePath}?${searchParams.toString()}`;
+    const basePath = currentPath;
 
-    navigate(updatedPath);
+    if (currentPath == '/') {
+      const updatedPath = `/vacancies?${searchParams.toString()}`;
+      navigate(updatedPath);
+    } else {
+      const updatedPath = `${basePath}?${searchParams.toString()}`;
+      navigate(updatedPath);
+    }
   };
 
   const handleCategoryChange = event => {
@@ -128,7 +133,7 @@ const Navbar = () => {
           value={catId}
           onChange={handleCategoryChange}
         >
-          <option value="all">Select Category</option>
+          <option value="">Select Category</option>
           {categories.map(category => (
             <option key={category.id} value={category.id}>
               {category.name}

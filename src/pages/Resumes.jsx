@@ -6,25 +6,81 @@ import starIcon from '../assets/icon/star.png';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 const Resumes = () => {
   const [resumes, setResumes] = useState([]);
 
-  const fetchResumes = async () => {
+  const { search } = useLocation();
+
+  const getQueryParams = queryName => {
+    const params = new URLSearchParams(search);
+    return params.get(queryName);
+  };
+
+  const navigate = useNavigate();
+
+  const categoryId = getQueryParams('category');
+  const cityName = getQueryParams('city');
+  const salaryQuantity = getQueryParams('salary');
+  const experienceTotal = getQueryParams('experience');
+  const jobType = getQueryParams('jobType');
+
+  const getResumes = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'resumes'));
-      const resumesData = querySnapshot.docs.map(doc => ({
+      const allResumes = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setResumes(resumesData);
+
+      let filteredResumes = allResumes;
+
+      if (categoryId) {
+        filteredResumes = filteredResumes.filter(
+          resume =>
+            resume.jobCategory &&
+            resume.jobCategory.toLowerCase() === categoryId.toLowerCase()
+        );
+      }
+      if (cityName) {
+        filteredResumes = filteredResumes.filter(
+          resume => resume.city.toLowerCase() === cityName.toLowerCase()
+        );
+      }
+      if (salaryQuantity) {
+        filteredResumes = filteredResumes.filter(
+          resume =>
+            resume.salaryRange.toLowerCase() === salaryQuantity.toLowerCase()
+        );
+      }
+      if (experienceTotal) {
+        filteredResumes = filteredResumes.filter(
+          resume => resume.experience === experienceTotal
+        );
+      }
+
+      if (jobType) {
+        filteredResumes = filteredResumes.filter(
+          resume => resume.jobType === jobType
+        );
+      }
+
+      setResumes(filteredResumes);
     } catch (error) {
-      console.log(error);
+      console.error('Error fetching resumes:', error);
     }
+  };
+  const { catId } = useParams();
+
+  const handleNavigate = id => {
+    catId
+      ? navigate(`/resumes/${categoryId}/${id}`)
+      : navigate(`/resumes/${id}`);
   };
 
   useEffect(() => {
-    fetchResumes();
-  }, []);
+    getResumes();
+  }, [search]);
   return (
     <div className="px-36 py-5">
       <h1 className="text-2xl my-5">Резюме пользователя</h1>
@@ -58,7 +114,7 @@ const Resumes = () => {
               </div>
               <div
                 className="middle flex flex-col gap-3 w-[385px] cursor-pointer"
-                // onClick={() => handleNavigate(id)}
+                onClick={() => handleNavigate(resume.id)} // id is not defined here
               >
                 <div className="middle-top flex gap-3">
                   <h3 className="font-bold text-base capitalize">

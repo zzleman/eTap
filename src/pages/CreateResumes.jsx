@@ -10,7 +10,7 @@ import {
   StyledForm,
 } from '../components/Styled/Styled';
 import { toast } from 'react-toastify';
-import { Timestamp } from 'firebase/firestore';
+import { getDocs, Timestamp } from 'firebase/firestore';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase';
 import { formCities, schema } from '../schemas/CreateResumeSchema';
@@ -28,6 +28,7 @@ const CreateResumes = () => {
   const uniqueDialCodes = [...new Set(dialCode)];
   const [profilePic, setProfilePic] = useState('');
   const [urlPath, setUrlPath] = useState('');
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     work: [],
     education: [],
@@ -53,6 +54,19 @@ const CreateResumes = () => {
 
   const addProfilePic = () => {
     setProfilePic(urlPath);
+  };
+
+  const getCategories = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'JobCategories'));
+      const categoriesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
   };
 
   const {
@@ -88,13 +102,19 @@ const CreateResumes = () => {
 
   const onSubmit = async data => {
     const sanitizedData = removeUndefinedFields(data);
+
+    const dataWithTimestamp = {
+      ...sanitizedData,
+      createdAt: Timestamp.now(),
+    };
+
     try {
-      await addDoc(collection(db, 'resumes'), sanitizedData);
-      toast.success('Profile details updated succesfully!');
+      await addDoc(collection(db, 'resumes'), dataWithTimestamp);
+      toast.success('Profile details updated successfully!');
       reset();
     } catch (error) {
       console.error('Error sending data to Firestore:', error);
-      toast.error('Problem occured with sending data :(');
+      toast.error('Problem occurred with sending data :(');
     }
   };
 
@@ -126,6 +146,7 @@ const CreateResumes = () => {
 
   useEffect(() => {
     fetchDialCodes();
+    getCategories();
   }, []);
 
   return (
@@ -307,7 +328,26 @@ const CreateResumes = () => {
                   <div className="text-red-500">{errors.email.message}</div>
                 )}
               </div>
-              <div className="resume-item flex flex-col gap-3 col-span-12">
+              <div className="resume-item flex flex-col gap-3 col-span-8">
+                <label className="font-semibold">Category*</label>
+                <FormSelect
+                  placeholder="Название должности"
+                  {...register('jobCategory')}
+                >
+                  <option value="">select a category</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </FormSelect>
+                {errors.jobCategory && (
+                  <div className="text-red-500">
+                    {errors.jobCategory.message}
+                  </div>
+                )}
+              </div>
+              <div className="resume-item flex flex-col gap-3 col-span-8">
                 <label className="font-semibold">
                   Какую должность вы хотите занимать*
                 </label>
@@ -319,7 +359,7 @@ const CreateResumes = () => {
                   <div className="text-red-500">{errors.position.message}</div>
                 )}
               </div>
-              <div className="resume-item flex flex-col gap-3 text-nowrap col-span-4">
+              <div className="resume-item flex flex-col gap-3 text-nowrap col-span-5">
                 <label>Уровень дохода вы рассматриваете (Руб)*</label>
                 <FormSelect {...register('salaryRange')}>
                   <option value="">З/п</option>
