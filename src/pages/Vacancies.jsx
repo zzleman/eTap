@@ -7,9 +7,8 @@ import { useLocation } from 'react-router-dom';
 const Vacancies = () => {
   const [vacancies, setVacancies] = useState([]);
 
-  const { search } = useLocation(); // Get query parameters from the URL
+  const { search } = useLocation();
 
-  // Helper function to extract query parameters
   const getQueryParams = queryName => {
     const params = new URLSearchParams(search);
     return params.get(queryName);
@@ -21,7 +20,6 @@ const Vacancies = () => {
   const experienceTotal = getQueryParams('experience');
   const jobType = getQueryParams('jobType');
 
-  // Fetch vacancies from Firestore and apply filters based on query parameters
   const getVacancies = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'vacancies'));
@@ -32,7 +30,6 @@ const Vacancies = () => {
 
       let filteredVacancies = allVacancies;
 
-      // Filter by category
       if (categoryId) {
         filteredVacancies = filteredVacancies.filter(
           vacancy =>
@@ -40,15 +37,11 @@ const Vacancies = () => {
             vacancy.category.toLowerCase() === categoryId.toLowerCase()
         );
       }
-
-      // Filter by city
       if (cityName) {
         filteredVacancies = filteredVacancies.filter(
           vacancy => vacancy.location.toLowerCase() === cityName.toLowerCase()
         );
       }
-
-      // Filter by salary range
       if (salaryQuantity) {
         const [minSalary, maxSalary] = salaryQuantity.split('-').map(Number);
         filteredVacancies = filteredVacancies.filter(vacancy => {
@@ -59,15 +52,12 @@ const Vacancies = () => {
           );
         });
       }
-
-      // Filter by experience
       if (experienceTotal) {
         filteredVacancies = filteredVacancies.filter(
           vacancy => vacancy.experience === experienceTotal
         );
       }
 
-      // Filter by job type
       if (jobType) {
         filteredVacancies = filteredVacancies.filter(
           vacancy => vacancy.jobType === jobType
@@ -80,10 +70,9 @@ const Vacancies = () => {
     }
   };
 
-  // Fetch vacancies whenever query parameters change
   useEffect(() => {
     getVacancies();
-  }, [search]); // Use `search` because query parameters might change
+  }, [search]);
 
   return (
     <div className="px-36 py-5">

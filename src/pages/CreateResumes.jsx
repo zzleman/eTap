@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import 'rsuite/dist/rsuite.min.css';
-import dayjs from 'dayjs';
+import profilePhoto from '../assets/img/user.png';
 import {
   FormDropdown,
   FormField,
@@ -10,10 +10,7 @@ import {
   StyledForm,
 } from '../components/Styled/Styled';
 import { toast } from 'react-toastify';
-import { BsCalendar2MonthFill } from 'react-icons/bs';
-import { Checkbox } from 'rsuite';
 import { Timestamp } from 'firebase/firestore';
-
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase';
 import { formCities, schema } from '../schemas/CreateResumeSchema';
@@ -23,18 +20,18 @@ import { addInfo, deleteInfo } from '../utils/formUtils';
 import docIcon from '../assets/icon/doc.png';
 import educationIcon from '../assets/icon/education.png';
 import languageIcon from '../assets/icon/language.png';
-import portfolioIcon from '../assets/icon/portfolio.png';
 import axios from 'axios';
 import { DatePicker } from 'rsuite';
 
 const CreateResumes = () => {
   const [dialCode, setDialCode] = useState([]);
   const uniqueDialCodes = [...new Set(dialCode)];
+  const [profilePic, setProfilePic] = useState('');
+  const [urlPath, setUrlPath] = useState('');
   const [formData, setFormData] = useState({
     work: [],
     education: [],
     language: [],
-    // portfolio: [],
   });
 
   const fetchDialCodes = async () => {
@@ -48,6 +45,14 @@ const CreateResumes = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
     }
+  };
+
+  const handleUrlChange = e => {
+    setUrlPath(e.target.value);
+  };
+
+  const addProfilePic = () => {
+    setProfilePic(urlPath);
   };
 
   const {
@@ -64,7 +69,6 @@ const CreateResumes = () => {
       dateRange: {
         startDate: null,
         endDate: null,
-        // portfolio: [],
       },
     },
   });
@@ -84,66 +88,19 @@ const CreateResumes = () => {
 
   const onSubmit = async data => {
     const sanitizedData = removeUndefinedFields(data);
-    console.log('Data before sending to Firestore:', sanitizedData);
-
     try {
       await addDoc(collection(db, 'resumes'), sanitizedData);
-      console.log('Data successfully sent to Firestore!');
+      toast.success('Profile details updated succesfully!');
       reset();
     } catch (error) {
       console.error('Error sending data to Firestore:', error);
+      toast.error('Problem occured with sending data :(');
     }
   };
 
   const debugErrors = () => {
     console.log('Errors:', errors);
   };
-
-  // const handleImageUpload = e => {
-  //   const files = e.target.files;
-
-  //   if (files.length > 0) {
-  //     const file = files[0];
-  //     const reader = new FileReader();
-
-  //     reader.onloadend = () => {
-  //       const base64Image = reader.result.split(',')[1];
-  //       saveImageToFirestore(base64Image);
-  //     };
-
-  //     reader.readAsDataURL(file); // Convert the image to Base64
-  //   }
-  // };
-
-  const saveImageToFirestore = async base64Image => {
-    const cleanedData = {
-      ...formData,
-      portfolio: base64Image,
-    };
-
-    try {
-      const docRef = await addDoc(collection(db, 'resumes'), {
-        ...cleanedData,
-        timestamp: new Date(),
-      });
-
-      console.log('Document written with ID: ', docRef.id);
-      alert('Form submitted and data saved to Firebase!');
-    } catch (error) {
-      console.error('Error adding document: ', error);
-      alert('There was an error submitting the form. Please try again.');
-    }
-  };
-
-  // const removeImage = index => {
-  //   const updatedPortfolio = formData.portfolio.filter(
-  //     (_, idx) => idx !== index
-  //   );
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     portfolio: updatedPortfolio,
-  //   }));
-  // };
 
   const toggleCheckboxWork = index => {
     const updatedWorkData = formData.work.map((work, idx) =>
@@ -934,7 +891,43 @@ const CreateResumes = () => {
               </div> */}
             </div>
           </div>
-          <div className="right w-6/12"></div>
+          <div className="right w-6/12 my-16">
+            <div className="profile-pic bg-[#eeeeee] size-40 rounded-md border border-yellow-400 flex items-center justify-center">
+              {profilePic ? (
+                <img
+                  className="size-full"
+                  src={profilePic ? profilePic : profilePhoto}
+                  alt=""
+                />
+              ) : (
+                <img
+                  className="size-24"
+                  src={profilePic ? profilePic : profilePhoto}
+                  alt=""
+                />
+              )}
+            </div>
+            <div className="file-upload flex flex-col items-center w-1/3">
+              <input
+                type="text"
+                className="h-7 border border-yellow-400 w-40 rounded-md my-3 outline-none px-2"
+                {...register('profilePicture')}
+                value={urlPath}
+                onChange={handleUrlChange}
+              />
+              {errors.profilePicture && (
+                <div className="text-red-500">
+                  {errors.profilePicture.message}
+                </div>
+              )}
+              <p
+                className="border border-yellow-400 h-7 w-24 rounded-md flex justify-center items-center cursor-pointer"
+                onClick={addProfilePic}
+              >
+                add photo
+              </p>
+            </div>
+          </div>
         </div>
         <button type="submit" className="border-2 p-3 my-5">
           Submit

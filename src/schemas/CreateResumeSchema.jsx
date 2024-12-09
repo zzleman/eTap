@@ -141,17 +141,5 @@ export const schema = z.object({
       langLevel: z.string().min(1, 'Required'),
     })
   ),
-  // portfolio: z
-  //   .array(
-  //     z
-  //       .string()
-  //       .url('Each portfolio item must be a valid image URL')
-  //       .or(
-  //         z.instanceof(File).refine(file => file.type.startsWith('image/'), {
-  //           message: 'Only image files are allowed',
-  //         })
-  //       )
-  //   )
-  //   .max(5, 'You can only upload up to 5 images')
-  //   .optional(), // Make portfolio field optional
+  profilePicture: z.string().optional(),
 });
