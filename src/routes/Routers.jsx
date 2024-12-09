@@ -9,6 +9,7 @@ import DateRangeForm from '../pages/DateRangeForm';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import Resumes from '../pages/Resumes';
 import Vacancies from '../pages/Vacancies';
 import VacancySingle from '../pages/VacancySingle';
 const Routers = () => {
@@ -46,19 +47,20 @@ const Routers = () => {
         }
       />
       <Route path="/vacancies/:categoryId/:id" element={<VacancySingle />} />
-      {/* <Route
-        path="/createResume"
-        element={
-          <RequireAuth>
-            <CreateResume />
-          </RequireAuth>
-        }
-      /> */}
+
       <Route
         path="/createResumes"
         element={
           <RequireAuth>
             <CreateResumes />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/resumes"
+        element={
+          <RequireAuth>
+            <Resumes />
           </RequireAuth>
         }
       />
