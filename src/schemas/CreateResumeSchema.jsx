@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { Timestamp } from 'firebase/firestore';
+
 export const months = [
   'January',
   'February',
@@ -13,12 +15,16 @@ export const months = [
   'November',
   'December',
 ];
+
 export const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
 export const years = Array.from(
   { length: 65 },
   (_, i) => new Date().getFullYear() - i
 );
+
 export const formCities = ['Baku', 'Sumgayit', 'Ganja', 'Nakhcivan'];
+
 export const schema = z.object({
   name: z.string().min(3),
   surname: z.string().min(3),
@@ -47,9 +53,105 @@ export const schema = z.object({
     phone: z.string().min(9).max(9),
   }),
   email: z.string().email('Invalid email address'),
-  position: z.string().min(5, {
-    message: 'Enter the position',
-  }),
+  position: z.string().min(5, { message: 'Enter the position' }),
   salaryRange: z.string().min(1, { message: 'Choose a salary range' }),
-  experience: z.string().min(1, { message: 'Choose an experience ' }),
+  experience: z.string().min(1, { message: 'Choose an experience' }),
+  work: z.array(
+    z.object({
+      skills: z
+        .string()
+        .min(1, 'Навыки обязательны для заполнения')
+        .min(5, 'Навыки должны содержать минимум 5 символов'),
+      company: z.string().min(1, 'Компания обязательна для заполнения'),
+      position: z.string().min(1, 'Позиция обязательна для заполнения'),
+      city: z.string().min(1, 'Город обязателен для заполнения'),
+      dateRange: z
+        .object({
+          startDate: z
+            .custom(val => val instanceof Timestamp, {
+              message: 'Start date must be a valid Timestamp',
+            })
+            .refine(
+              date => date instanceof Timestamp,
+              'Start date must be a valid Firebase Timestamp'
+            ),
+          endDate: z
+            .custom(val => !val || val instanceof Timestamp, {
+              message: 'End date must be a valid Timestamp or null',
+            })
+            .nullable()
+            .optional(),
+        })
+        .refine(
+          dateRange => {
+            if (dateRange.startDate && dateRange.endDate) {
+              return dateRange.startDate.seconds <= dateRange.endDate.seconds;
+            }
+            return true;
+          },
+          {
+            message: 'End Date must be after Start Date',
+            path: ['dateRange.endDate'],
+          }
+        ),
+      stillWorks: z.boolean().optional(),
+    })
+  ),
+  education: z.array(
+    z.object({
+      university: z.string().min(1, 'enter a instituinon'),
+      degree: z.string().min(1, 'enter a degree'),
+      faculty: z.string().min(1, 'enter a faculty'),
+      city: z.string().min(1, 'enter the city of uni'),
+      dateRange: z
+        .object({
+          startDate: z
+            .custom(val => val instanceof Timestamp, {
+              message: 'Start date must be a valid Timestamp',
+            })
+            .refine(
+              date => date instanceof Timestamp,
+              'Start date must be a valid Firebase Timestamp'
+            ),
+          endDate: z
+            .custom(val => !val || val instanceof Timestamp, {
+              message: 'End date must be a valid Timestamp or null',
+            })
+            .nullable()
+            .optional(),
+        })
+        .refine(
+          dateRange => {
+            if (dateRange.startDate && dateRange.endDate) {
+              return dateRange.startDate.seconds <= dateRange.endDate.seconds;
+            }
+            return true;
+          },
+          {
+            message: 'End Date must be after Start Date',
+            path: ['dateRange.endDate'],
+          }
+        ),
+      stillStudy: z.boolean().optional(),
+    })
+  ),
+  language: z.array(
+    z.object({
+      langChoice: z.string().min(1, 'Required'),
+      langLevel: z.string().min(1, 'Required'),
+    })
+  ),
+  // portfolio: z
+  //   .array(
+  //     z
+  //       .string()
+  //       .url('Each portfolio item must be a valid image URL')
+  //       .or(
+  //         z.instanceof(File).refine(file => file.type.startsWith('image/'), {
+  //           message: 'Only image files are allowed',
+  //         })
+  //       )
+  //   )
+  //   .max(5, 'You can only upload up to 5 images')
+  //   .optional(), // Make portfolio field optional
 });

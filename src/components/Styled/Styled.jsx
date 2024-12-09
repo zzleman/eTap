@@ -14,7 +14,6 @@ export const FormSelect = styled.select`
   border-radius: 5px;
   padding: 0 20px;
   outline: none;
-  grid-column: span 4;
 `;
 
 export const FormDropdown = styled.div`
@@ -25,4 +24,13 @@ export const FormDropdown = styled.div`
   height: 80px;
   align-items: center;
   padding: 0 28px;
+`;
+
+export const StyledForm = styled.div`
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+  padding: 20px;
+  font-size: 14px;
+  border: 1px solid #a3a3a3;
 `;

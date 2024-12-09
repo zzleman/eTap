@@ -783,7 +783,6 @@ const CreateResume = () => {
                       src={portfolioIcon}
                       alt="Portfolio Icon"
                     />
-                    <p>Портфолио</p>
                   </div>
                   <p
                     className="cursor-pointer"

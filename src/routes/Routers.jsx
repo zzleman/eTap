@@ -4,6 +4,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import CreateResumes from '../pages/CreateResumes';
 import CreateVacancy from '../pages/CreateVacancy';
+import DateRangeForm from '../pages/DateRangeForm';
+
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
@@ -60,6 +62,7 @@ const Routers = () => {
           </RequireAuth>
         }
       />
+      <Route path="/salam" element={<DateRangeForm />} />
     </Routes>
   );
 };
