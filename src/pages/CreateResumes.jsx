@@ -10,7 +10,15 @@ import {
   StyledForm,
 } from '../components/Styled/Styled';
 import { toast } from 'react-toastify';
-import { getDocs, Timestamp } from 'firebase/firestore';
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  Timestamp,
+  updateDoc,
+} from 'firebase/firestore';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase';
 import { formCities, schema } from '../schemas/CreateResumeSchema';
@@ -22,8 +30,13 @@ import educationIcon from '../assets/icon/education.png';
 import languageIcon from '../assets/icon/language.png';
 import axios from 'axios';
 import { DatePicker } from 'rsuite';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '../redux/authSlice';
 
 const CreateResumes = () => {
+  const currentUser = useSelector(selectCurrentUser);
+  const userId = currentUser?.uid;
+
   const [dialCode, setDialCode] = useState([]);
   const uniqueDialCodes = [...new Set(dialCode)];
   const [profilePic, setProfilePic] = useState('');
@@ -99,22 +112,111 @@ const CreateResumes = () => {
     }
     return obj;
   }
+  const setNestedValues = (data, parentKey = '') => {
+    Object.entries(data).forEach(([key, value]) => {
+      const fieldName = parentKey ? `${parentKey}.${key}` : key;
+
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
+        setNestedValues(value, fieldName);
+      } else if (Array.isArray(value)) {
+        value.forEach((item, index) => {
+          if (typeof item === 'object' && item !== null) {
+            setNestedValues(item, `${fieldName}[${index}]`);
+          } else {
+            setValue(`${fieldName}[${index}]`, item || '');
+          }
+        });
+      } else {
+        if (value && value.seconds !== undefined) {
+          console.log(`Converting ${fieldName} to Date:`, value);
+          const date = new Date(value.seconds * 1000);
+          setValue(fieldName, date);
+        } else {
+          setValue(fieldName, value || '');
+        }
+      }
+    });
+  };
+
+  const fetchResume = async () => {
+    try {
+      const userRef = doc(db, 'Users', userId);
+      const userSnapshot = await getDoc(userRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        const resumeData = userData.resumes?.[0] || {};
+
+        console.log('Fetched resume data:', resumeData); // Log fetched data for debugging
+
+        setNestedValues(resumeData); // Populate form with converted date values
+
+        setFormData(resumeData); // Set form data for display
+      }
+    } catch (error) {
+      console.error('Error fetching resume:', error);
+    }
+  };
 
   const onSubmit = async data => {
-    const sanitizedData = removeUndefinedFields(data);
-
-    const dataWithTimestamp = {
-      ...sanitizedData,
-      createdAt: Timestamp.now(),
-    };
+    if (!userId) {
+      toast.error('User not authenticated!', { position: 'top-center' });
+      return;
+    }
 
     try {
-      await addDoc(collection(db, 'resumes'), dataWithTimestamp);
-      toast.success('Profile details updated successfully!');
-      reset();
+      const userRef = doc(db, 'Users', userId);
+      const userSnapshot = await getDoc(userRef);
+
+      if (!userSnapshot.exists()) {
+        await setDoc(userRef, { resumes: [] });
+      }
+
+      const userData = userSnapshot.exists() ? userSnapshot.data() : {};
+      const existingResumes = userData.resumes || [];
+
+      const resumeId =
+        data.id || existingResumes[0]?.id || Date.now().toString();
+
+      const resumeIndex = existingResumes.findIndex(
+        resume => resume.id === resumeId
+      );
+
+      let updatedResumes;
+
+      if (resumeIndex !== -1) {
+        updatedResumes = [...existingResumes];
+        updatedResumes[resumeIndex] = {
+          ...existingResumes[resumeIndex],
+          ...removeUndefinedFields(data),
+          updatedAt: new Date().toISOString(),
+        };
+      } else {
+        updatedResumes = [
+          ...existingResumes,
+          {
+            id: resumeId,
+            ...removeUndefinedFields(data),
+            createdAt: new Date().toISOString(),
+          },
+        ];
+      }
+
+      await setDoc(userRef, { resumes: updatedResumes }, { merge: true });
+
+      toast.success('Resume added or updated successfully!', {
+        position: 'top-center',
+      });
+      //  reset();
     } catch (error) {
-      console.error('Error sending data to Firestore:', error);
-      toast.error('Problem occurred with sending data :(');
+      toast.error('Failed to add or update resume!', {
+        position: 'bottom-center',
+      });
+      console.error(error);
     }
   };
 
@@ -123,7 +225,7 @@ const CreateResumes = () => {
   };
 
   const toggleCheckboxWork = index => {
-    const updatedWorkData = formData.work.map((work, idx) =>
+    const updatedWorkData = formData.work?.map((work, idx) =>
       idx === index ? { ...work, stillWorks: !work.stillWorks } : work
     );
     setFormData(prev => ({
@@ -147,6 +249,7 @@ const CreateResumes = () => {
   useEffect(() => {
     fetchDialCodes();
     getCategories();
+    fetchResume();
   }, []);
 
   return (
@@ -402,187 +505,252 @@ const CreateResumes = () => {
                     +Добавить
                   </p>
                 </FormDropdown>
-                {formData.work.map((work, index) => {
-                  return (
-                    <div key={index} className="advanced-open">
-                      <StyledForm>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">Навыки/знания</label>
-                          <FormField
-                            {...register(`work[${index}].skills`)}
-                            placeholder="Выберите навыки/знания"
-                          />
-                          {errors.work?.[index]?.skills && (
-                            <div className="text-red-500">
-                              {errors.work[index].skills?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">Компания</label>
-                          <FormField
-                            {...register(`work[${index}].company`)}
-                            placeholder="Выберите компанию"
-                          />
-                          {errors.work?.[index]?.company && (
-                            <div className="text-red-500">
-                              {errors.work[index].company?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">
-                            Профессия/профессия
-                          </label>
-                          <FormField
-                            {...register(`work[${index}].position`)}
-                            placeholder="Выбрать профессию/род деятельности"
-                          />
-                          {errors.work?.[index]?.position && (
-                            <div className="text-red-500">
-                              {errors.work[index].position?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">Город</label>
-                          <FormSelect {...register(`work[${index}].city`)}>
-                            <option value="">Укажите город</option>
-                            {formCities.map(city => (
-                              <option key={city} value={city}>
-                                {city}
-                              </option>
-                            ))}
-                          </FormSelect>
-                          {errors.work?.[index]?.city && (
-                            <div className="text-red-500">
-                              {errors.work[index].city?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-12">
-                          <div className="grid grid-cols-12 gap-3 items-center">
-                            <div className="info-item flex flex-col col-span-4">
-                              <label htmlFor="startDate">
-                                Start Date (MM/YYYY)
-                              </label>
-                              <Controller
-                                name={`work[${index}].dateRange.startDate`}
-                                control={control}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    {...field}
-                                    format="MM/yyyy"
-                                    style={{ width: 200 }}
-                                    placeholder="Select Start Date"
-                                    placement="auto"
-                                    onChange={date => {
-                                      if (date) {
-                                        const firebaseTimestamp =
-                                          Timestamp.fromDate(new Date(date));
-                                        field.onChange(firebaseTimestamp);
-                                        console.log(
-                                          'Selected Start Date:',
-                                          firebaseTimestamp
-                                        );
-                                      } else {
-                                        field.onChange(null);
-                                      }
-                                    }}
-                                    value={
-                                      field.value ? field.value.toDate() : null
-                                    }
-                                    cleanable
-                                  />
-                                )}
-                              />
-                              {errors.work?.[index]?.dateRange?.startDate && (
-                                <p style={{ color: 'red' }}>
-                                  {
-                                    errors.work[index].dateRange.startDate
-                                      .message
-                                  }
-                                </p>
-                              )}
-                            </div>
-
-                            {/* End Date */}
-                            <div className="info-item flex flex-col col-span-4">
-                              <label htmlFor="endDate">
-                                End Date (MM/YYYY)
-                              </label>
-                              <Controller
-                                name={`work[${index}].dateRange.endDate`}
-                                control={control}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    {...field}
-                                    format="MM/yyyy"
-                                    style={{ width: 200 }}
-                                    placeholder="Select End Date"
-                                    placement="auto"
-                                    disabled={work.stillWorks}
-                                    onChange={date => {
-                                      if (date) {
-                                        const firebaseTimestamp =
-                                          Timestamp.fromDate(new Date(date));
-                                        field.onChange(firebaseTimestamp);
-                                      } else {
-                                        field.onChange(null);
-                                      }
-                                    }}
-                                    value={
-                                      field.value ? field.value.toDate() : null
-                                    }
-                                    cleanable
-                                  />
-                                )}
-                              />
-
-                              {errors.work?.[index]?.dateRange?.endDate && (
-                                <p style={{ color: 'red' }}>
-                                  {errors.work[index].dateRange.endDate.message}
-                                </p>
-                              )}
-                            </div>
-                            <div className="info-item flex flex-col col-span-4">
-                              <label className="font-semibold" htmlFor="">
-                                До настоящего времени
-                              </label>
-                              <div className="h-10 flex items-center gap-3">
+                {formData.work ? (
+                  formData.work.map((work, index) => {
+                    return (
+                      <div key={index} className="advanced-open">
+                        <StyledForm>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">
+                              Навыки/знания
+                            </label>
+                            <FormField
+                              {...register(`work[${index}].skills`)}
+                              placeholder="Выберите навыки/знания"
+                            />
+                            {errors.work?.[index]?.skills && (
+                              <div className="text-red-500">
+                                {errors.work[index].skills?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">Компания</label>
+                            <FormField
+                              {...register(`work[${index}].company`)}
+                              placeholder="Выберите компанию"
+                            />
+                            {errors.work?.[index]?.company && (
+                              <div className="text-red-500">
+                                {errors.work[index].company?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">
+                              Профессия/профессия
+                            </label>
+                            <FormField
+                              {...register(`work[${index}].position`)}
+                              placeholder="Выбрать профессию/род деятельности"
+                            />
+                            {errors.work?.[index]?.position && (
+                              <div className="text-red-500">
+                                {errors.work[index].position?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">Город</label>
+                            <FormSelect {...register(`work[${index}].city`)}>
+                              <option value="">Укажите город</option>
+                              {formCities.map(city => (
+                                <option key={city} value={city}>
+                                  {city}
+                                </option>
+                              ))}
+                            </FormSelect>
+                            {errors.work?.[index]?.city && (
+                              <div className="text-red-500">
+                                {errors.work[index].city?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-12">
+                            <div className="grid grid-cols-12 gap-3 items-center">
+                              <div className="info-item flex flex-col col-span-4">
+                                <label htmlFor="startDate">
+                                  Start Date (MM/YYYY)
+                                </label>
                                 <Controller
-                                  name={`work[${index}].stillWorks`}
+                                  name={`work[${index}].dateRange.startDate`}
                                   control={control}
-                                  defaultValue={false}
+                                  render={({ field }) => {
+                                    console.log(
+                                      'Start Date Field Value:',
+                                      field.value
+                                    ); // Debug log
+
+                                    return (
+                                      <DatePicker
+                                        {...field}
+                                        format="MM/yyyy"
+                                        style={{ width: 200 }}
+                                        placeholder="Select Start Date"
+                                        placement="auto"
+                                        onChange={date => {
+                                          if (date) {
+                                            const firebaseTimestamp =
+                                              Timestamp.fromDate(
+                                                new Date(date)
+                                              ); // Convert to Firestore Timestamp
+                                            field.onChange(firebaseTimestamp); // Update field with Timestamp
+                                          } else {
+                                            field.onChange(null); // Handle null date case
+                                          }
+                                        }}
+                                        value={
+                                          field.value instanceof Date
+                                            ? field.value // Directly use JavaScript Date
+                                            : field.value && field.value.toDate
+                                              ? field.value.toDate() // Convert Firestore Timestamp to JS Date
+                                              : null
+                                        }
+                                        cleanable
+                                      />
+                                    );
+                                  }}
+                                />
+
+                                {errors.work?.[index]?.dateRange?.startDate && (
+                                  <p style={{ color: 'red' }}>
+                                    {
+                                      errors.work[index].dateRange.startDate
+                                        .message
+                                    }
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* End Date */}
+                              <div className="info-item flex flex-col col-span-4">
+                                <label htmlFor="endDate">
+                                  End Date (MM/YYYY)
+                                </label>
+                                <Controller
+                                  name={`work[${index}].dateRange.endDate`}
+                                  control={control}
                                   render={({ field }) => (
-                                    <input
+                                    <DatePicker
                                       {...field}
-                                      type="checkbox"
-                                      checked={field.value}
-                                      onClick={() => toggleCheckboxWork(index)}
+                                      format="MM/yyyy"
+                                      style={{ width: 200 }}
+                                      placeholder="Select End Date"
+                                      placement="auto"
+                                      disabled={work.stillWorks}
+                                      onChange={date => {
+                                        if (date) {
+                                          const firebaseTimestamp =
+                                            Timestamp.fromDate(new Date(date));
+                                          field.onChange(firebaseTimestamp); // Save to Firestore as Timestamp
+                                        } else {
+                                          field.onChange(null);
+                                        }
+                                      }}
+                                      value={
+                                        field.value instanceof Timestamp
+                                          ? field.value.toDate() // Convert Firestore Timestamp to Date object
+                                          : field.value instanceof Date
+                                            ? field.value // Use Date object if it's already a Date
+                                            : null // Use null if no valid value
+                                      }
+                                      cleanable
                                     />
                                   )}
                                 />
-                                <label htmlFor="">Это продолжается</label>
+
+                                {/* <Controller
+                                  name={`work[${index}].dateRange.endDate`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      {...field}
+                                      format="MM/yyyy"
+                                      style={{ width: 200 }}
+                                      placeholder="Select End Date"
+                                      placement="auto"
+                                      disabled={work.stillWorks}
+                                      onChange={date => {
+                                        if (date) {
+                                          // Convert to Firebase Timestamp
+                                          const firebaseTimestamp =
+                                            Timestamp.fromDate(new Date(date));
+                                          field.onChange(firebaseTimestamp); // Update the field value
+                                          console.log(
+                                            'Selected Start Date:',
+                                            firebaseTimestamp
+                                          );
+                                        } else {
+                                          field.onChange(null); // Clear the value if no date is selected
+                                        }
+                                      }}
+                                      value={
+                                        field.value
+                                          ? field.value.toDate()
+                                          : null
+                                      }
+                                      cleanable
+                                    />
+                                  )}
+                                /> */}
+
+                                {errors.work?.[index]?.dateRange?.endDate && (
+                                  <p style={{ color: 'red' }}>
+                                    {
+                                      errors.work[index].dateRange.endDate
+                                        .message
+                                    }
+                                  </p>
+                                )}
+                              </div>
+                              <div className="info-item flex flex-col col-span-4">
+                                <label className="font-semibold" htmlFor="">
+                                  До настоящего времени
+                                </label>
+                                <div className="h-10 flex items-center gap-3">
+                                  <Controller
+                                    name={`work[${index}].stillWorks`}
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field }) => (
+                                      <input
+                                        {...field}
+                                        type="checkbox"
+                                        checked={field.value}
+                                        onClick={() =>
+                                          toggleCheckboxWork(index)
+                                        }
+                                      />
+                                    )}
+                                  />
+                                  <label htmlFor="">Это продолжается</label>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="info-item flex flex-col col-span-12">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              deleteInfo('work', work.id, formData, setFormData)
-                            }
-                            className="text-red-500"
-                          >
-                            Удалить
-                          </button>
-                        </div>
-                      </StyledForm>
-                    </div>
-                  );
-                })}
+                          <div className="info-item flex flex-col col-span-12">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                deleteInfo(
+                                  'work',
+                                  work.id,
+                                  formData,
+                                  setFormData
+                                )
+                              }
+                              className="text-red-500"
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        </StyledForm>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>no work data found</p>
+                )}
               </div>
               <div className="advanced-item w-[635px] text-nowrap">
                 <FormDropdown>
@@ -599,204 +767,216 @@ const CreateResumes = () => {
                     +Добавить
                   </p>
                 </FormDropdown>
-                {formData.education.map((education, index) => {
-                  return (
-                    <div key={index} className="advanced-open">
-                      <StyledForm>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">
-                            Учебное заведение
-                          </label>
-                          <FormField
-                            {...register(`education[${index}].university`)}
-                            placeholder="Выберите Учебное заведение"
-                          />
-                          {errors.education?.[index]?.university && (
-                            <div className="text-red-500">
-                              {errors.education[index].university?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">
-                            Степень образования
-                          </label>
-                          <FormSelect
-                            {...register(`education[${index}].degree`)}
-                          >
-                            <option value="">Select Education</option>
-                            <option value="undergraduate">Undergraduate</option>
-                            <option value="bachelor">Bachelor</option>
-                            <option value="master">Master</option>
-                            <option value="phd">PhD</option>
-                          </FormSelect>
-
-                          {errors.education?.[index]?.degree && (
-                            <div className="text-red-500">
-                              {errors.education[index].degree?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold" htmlFor="">
-                            Факультет
-                          </label>
-                          <FormField
-                            {...register(`education[${index}].faculty`)}
-                            placeholder="Выбрать профессию/род деятельности"
-                          />
-                          {errors.education?.[index]?.faculty && (
-                            <div className="text-red-500">
-                              {errors.education[index].faculty?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">Город</label>
-                          <FormSelect {...register(`education[${index}].city`)}>
-                            <option value="">Укажите город</option>
-                            {formCities.map(city => (
-                              <option key={city} value={city}>
-                                {city}
+                {formData.education ? (
+                  formData.education.map((education, index) => {
+                    return (
+                      <div key={index} className="advanced-open">
+                        <StyledForm>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">
+                              Учебное заведение
+                            </label>
+                            <FormField
+                              {...register(`education[${index}].university`)}
+                              placeholder="Выберите Учебное заведение"
+                            />
+                            {errors.education?.[index]?.university && (
+                              <div className="text-red-500">
+                                {errors.education[index].university?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">
+                              Степень образования
+                            </label>
+                            <FormSelect
+                              {...register(`education[${index}].degree`)}
+                            >
+                              <option value="">Select Education</option>
+                              <option value="undergraduate">
+                                Undergraduate
                               </option>
-                            ))}
-                          </FormSelect>
-                          {errors.education?.[index]?.city && (
-                            <div className="text-red-500">
-                              {errors.education[index].city?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-12">
-                          <div className="grid grid-cols-12 gap-3 items-center">
-                            <div className="info-item flex flex-col col-span-4">
-                              <label htmlFor="startDate">Дата начала</label>
-                              <Controller
-                                name={`education[${index}].dateRange.startDate`}
-                                control={control}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    {...field}
-                                    format="MM/yyyy"
-                                    style={{ width: 200 }}
-                                    placeholder="mm/yyyy"
-                                    placement="auto"
-                                    onChange={date => {
-                                      if (date) {
-                                        const firebaseTimestamp =
-                                          Timestamp.fromDate(new Date(date));
-                                        field.onChange(firebaseTimestamp);
-                                        console.log(
-                                          'Selected Start Date:',
-                                          firebaseTimestamp
-                                        );
-                                      } else {
-                                        field.onChange(null);
-                                      }
-                                    }}
-                                    value={
-                                      field.value ? field.value.toDate() : null
-                                    }
-                                    cleanable
-                                  />
-                                )}
-                              />
-                              {errors.education?.[index]?.dateRange
-                                ?.startDate && (
-                                <p style={{ color: 'red' }}>
-                                  {
-                                    errors.education[index].dateRange.startDate
-                                      .message
-                                  }
-                                </p>
-                              )}
-                            </div>
+                              <option value="bachelor">Bachelor</option>
+                              <option value="master">Master</option>
+                              <option value="phd">PhD</option>
+                            </FormSelect>
 
-                            {/* End Date */}
-                            <div className="info-item flex flex-col col-span-4">
-                              <label htmlFor="endDate">
-                                Дата восстановления
-                              </label>
-                              <Controller
-                                name={`education[${index}].dateRange.endDate`}
-                                control={control}
-                                render={({ field }) => (
-                                  <DatePicker
-                                    {...field}
-                                    format="MM/yyyy"
-                                    style={{ width: 200 }}
-                                    placeholder="Select End Date"
-                                    placement="auto"
-                                    disabled={education.stillStudy}
-                                    onChange={date => {
-                                      if (date) {
-                                        const firebaseTimestamp =
-                                          Timestamp.fromDate(new Date(date));
-                                        field.onChange(firebaseTimestamp);
-                                      } else {
-                                        field.onChange(null);
-                                      }
-                                    }}
-                                    value={
-                                      field.value ? field.value.toDate() : null
-                                    }
-                                    cleanable
-                                  />
-                                )}
-                              />
-                              {errors.education?.[index]?.dateRange
-                                ?.endDate && (
-                                <p style={{ color: 'red' }}>
-                                  {
-                                    errors.education[index].dateRange.endDate
-                                      .message
-                                  }
-                                </p>
-                              )}
-                            </div>
-                            <div className="info-item flex flex-col col-span-4">
-                              <label className="font-semibold" htmlFor="">
-                                я все еще студент
-                              </label>
-                              <div className="h-10 flex items-center gap-3">
+                            {errors.education?.[index]?.degree && (
+                              <div className="text-red-500">
+                                {errors.education[index].degree?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold" htmlFor="">
+                              Факультет
+                            </label>
+                            <FormField
+                              {...register(`education[${index}].faculty`)}
+                              placeholder="Выбрать профессию/род деятельности"
+                            />
+                            {errors.education?.[index]?.faculty && (
+                              <div className="text-red-500">
+                                {errors.education[index].faculty?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">Город</label>
+                            <FormSelect
+                              {...register(`education[${index}].city`)}
+                            >
+                              <option value="">Укажите город</option>
+                              {formCities.map(city => (
+                                <option key={city} value={city}>
+                                  {city}
+                                </option>
+                              ))}
+                            </FormSelect>
+                            {errors.education?.[index]?.city && (
+                              <div className="text-red-500">
+                                {errors.education[index].city?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-12">
+                            <div className="grid grid-cols-12 gap-3 items-center">
+                              <div className="info-item flex flex-col col-span-4">
+                                <label htmlFor="startDate">Дата начала</label>
                                 <Controller
-                                  name={`education[${index}].stillStudy`}
+                                  name={`education[${index}].dateRange.startDate`}
                                   control={control}
-                                  defaultValue={false}
                                   render={({ field }) => (
-                                    <input
+                                    <DatePicker
                                       {...field}
-                                      type="checkbox"
-                                      checked={field.value}
-                                      onClick={() => toggleCheckboxEdu(index)}
+                                      format="MM/yyyy"
+                                      style={{ width: 200 }}
+                                      placeholder="Select Start Date"
+                                      placement="auto"
+                                      onChange={date => {
+                                        if (date) {
+                                          const firebaseTimestamp =
+                                            Timestamp.fromDate(new Date(date));
+                                          field.onChange(firebaseTimestamp);
+                                        } else {
+                                          field.onChange(null);
+                                        }
+                                      }}
+                                      value={
+                                        field.value && field.value.toDate
+                                          ? field.value.toDate()
+                                          : field.value instanceof Date
+                                            ? field.value
+                                            : null
+                                      }
+                                      cleanable
                                     />
                                   )}
                                 />
-                                <label htmlFor="">Это продолжается</label>
+                                {errors.education?.[index]?.dateRange
+                                  ?.startDate && (
+                                  <p style={{ color: 'red' }}>
+                                    {
+                                      errors.education[index].dateRange
+                                        .startDate.message
+                                    }
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* End Date */}
+                              <div className="info-item flex flex-col col-span-4">
+                                <label htmlFor="endDate">
+                                  Дата восстановления
+                                </label>
+                                <Controller
+                                  name={`education[${index}].dateRange.endDate`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <DatePicker
+                                      {...field}
+                                      format="MM/yyyy"
+                                      style={{ width: 200 }}
+                                      placeholder="Select End Date"
+                                      placement="auto"
+                                      disabled={education.stillStudy}
+                                      onChange={date => {
+                                        if (date) {
+                                          const firebaseTimestamp =
+                                            Timestamp.fromDate(new Date(date));
+                                          field.onChange(firebaseTimestamp);
+                                        } else {
+                                          field.onChange(null);
+                                        }
+                                      }}
+                                      value={
+                                        field.value && field.value.toDate
+                                          ? field.value.toDate()
+                                          : field.value instanceof Date
+                                            ? field.value
+                                            : null
+                                      }
+                                      cleanable
+                                    />
+                                  )}
+                                />
+                                {errors.education?.[index]?.dateRange
+                                  ?.endDate && (
+                                  <p style={{ color: 'red' }}>
+                                    {
+                                      errors.education[index].dateRange.endDate
+                                        .message
+                                    }
+                                  </p>
+                                )}
+                              </div>
+                              <div className="info-item flex flex-col col-span-4">
+                                <label className="font-semibold" htmlFor="">
+                                  я все еще студент
+                                </label>
+                                <div className="h-10 flex items-center gap-3">
+                                  <Controller
+                                    name={`education[${index}].stillStudy`}
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field }) => (
+                                      <input
+                                        {...field}
+                                        type="checkbox"
+                                        checked={field.value}
+                                        onClick={() => toggleCheckboxEdu(index)}
+                                      />
+                                    )}
+                                  />
+                                  <label htmlFor="">Это продолжается</label>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="info-item flex flex-col col-span-12">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              deleteInfo(
-                                'education',
-                                education.id,
-                                formData,
-                                setFormData
-                              )
-                            }
-                            className="text-red-500"
-                          >
-                            Удалить
-                          </button>
-                        </div>
-                      </StyledForm>
-                    </div>
-                  );
-                })}
+                          <div className="info-item flex flex-col col-span-12">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                deleteInfo(
+                                  'education',
+                                  education.id,
+                                  formData,
+                                  setFormData
+                                )
+                              }
+                              className="text-red-500"
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        </StyledForm>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>no education data found</p>
+                )}
               </div>
               <div className="advanced-item w-[635px]">
                 <FormDropdown>
@@ -813,72 +993,76 @@ const CreateResumes = () => {
                     +Добавить
                   </p>
                 </FormDropdown>
-                {formData.language.map((language, index) => {
-                  return (
-                    <div key={index} className="advanced-open">
-                      <StyledForm>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">Язык</label>
-                          <FormSelect
-                            {...register(`language[${index}].langChoice`)}
-                            placeholder="Выберите навыки/знания"
-                          >
-                            <option value="">Choose a language</option>
-                            {languageChoices &&
-                              languageChoices.map((lang, index) => (
-                                <option key={index} value={lang}>
-                                  {lang}
-                                </option>
-                              ))}
-                          </FormSelect>
-                          {errors.language?.[index]?.langChoice && (
-                            <div className="text-red-500">
-                              {errors.language[index].langChoice?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-6">
-                          <label className="font-semibold">
-                            Уровень владения языком
-                          </label>
-                          <FormSelect
-                            {...register(`language[${index}].langLevel`)}
-                            placeholder="Выберите компанию"
-                          >
-                            <option value="">Choose a language</option>
-                            {languageLevels &&
-                              languageLevels.map((level, index) => (
-                                <option key={index} value={level}>
-                                  {level}
-                                </option>
-                              ))}
-                          </FormSelect>
-                          {errors.language?.[index]?.langLevel && (
-                            <div className="text-red-500">
-                              {errors.language[index].langLevel?.message}
-                            </div>
-                          )}
-                        </div>
-                        <div className="info-item flex flex-col col-span-12">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              deleteInfo(
-                                'language',
-                                language.id,
-                                formData,
-                                setFormData
-                              )
-                            }
-                            className="text-red-500"
-                          >
-                            Удалить
-                          </button>
-                        </div>
-                      </StyledForm>
-                    </div>
-                  );
-                })}
+                {formData.language ? (
+                  formData.language.map((language, index) => {
+                    return (
+                      <div key={index} className="advanced-open">
+                        <StyledForm>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">Язык</label>
+                            <FormSelect
+                              {...register(`language[${index}].langChoice`)}
+                              placeholder="Выберите навыки/знания"
+                            >
+                              <option value="">Choose a language</option>
+                              {languageChoices &&
+                                languageChoices.map((lang, index) => (
+                                  <option key={index} value={lang}>
+                                    {lang}
+                                  </option>
+                                ))}
+                            </FormSelect>
+                            {errors.language?.[index]?.langChoice && (
+                              <div className="text-red-500">
+                                {errors.language[index].langChoice?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-6">
+                            <label className="font-semibold">
+                              Уровень владения языком
+                            </label>
+                            <FormSelect
+                              {...register(`language[${index}].langLevel`)}
+                              placeholder="Выберите компанию"
+                            >
+                              <option value="">Choose a language</option>
+                              {languageLevels &&
+                                languageLevels.map((level, index) => (
+                                  <option key={index} value={level}>
+                                    {level}
+                                  </option>
+                                ))}
+                            </FormSelect>
+                            {errors.language?.[index]?.langLevel && (
+                              <div className="text-red-500">
+                                {errors.language[index].langLevel?.message}
+                              </div>
+                            )}
+                          </div>
+                          <div className="info-item flex flex-col col-span-12">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                deleteInfo(
+                                  'language',
+                                  language.id,
+                                  formData,
+                                  setFormData
+                                )
+                              }
+                              className="text-red-500"
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        </StyledForm>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>no language data found</p>
+                )}
               </div>
               {/* <div className="advanced-item w-[635px]">
                 <FormDropdown>

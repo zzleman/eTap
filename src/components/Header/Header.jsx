@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronDown,
@@ -10,6 +10,7 @@ import Navbar from './Navbar';
 import { useDispatch } from 'react-redux';
 import { logOut } from '../../redux/authSlice';
 import { useEffect } from 'react';
+import { Dropdown } from 'rsuite';
 
 const Header = () => {
   const location = useLocation();
@@ -23,31 +24,32 @@ const Header = () => {
     <div className="bg-[#563D7C] px-36 flex flex-col gap-7 py-5">
       <div className="pre-header flex items-center text-white justify-between text-xs">
         <div className="left flex items-center gap-3">
-          <img
-            className="border-r-2 pr-3 h-6"
-            src={etapLogo}
-            alt="e-Tap Logo"
-          />
-          <ul className="flex gap-3">
-            <li className="flex gap-1 items-center">
-              Для ищущих работу
-              <FontAwesomeIcon
-                icon={faChevronDown}
-                style={{ color: '#ffffff' }}
-              />
-            </li>
-            <li className="flex gap-1 items-center">
-              Для ищущих рабочий
-              <FontAwesomeIcon
-                icon={faChevronDown}
-                style={{ color: '#ffffff' }}
-              />
-            </li>
+          <Link to="/">
+            <img
+              className="border-r-2 pr-3 h-6 cursor-pointer"
+              src={etapLogo}
+              alt="e-Tap Logo"
+            />
+          </Link>
+          <ul className="flex gap-3 my-1">
+            <Dropdown title="Объявление">
+              <Link to="/vacancies">
+                <Dropdown.Item>Объявления о вакансиях</Dropdown.Item>
+              </Link>
+              <Link to="/resumes">
+                <Dropdown.Item>Все резюме</Dropdown.Item>
+              </Link>
+            </Dropdown>
           </ul>
         </div>
         <div className="right flex gap-7 items-center">
           <ul className="flex gap-5">
-            <li>Профиль</li>
+            <Link
+              className="text-white hover:text-neutral-400"
+              to="/createResumes"
+            >
+              Профиль
+            </Link>
             <li>
               Сообщения
               <span className="ml-2 border py-1 px-1.5 rounded-full text-[10px]">
