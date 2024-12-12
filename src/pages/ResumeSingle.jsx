@@ -56,14 +56,13 @@ const ResumeSingle = () => {
           toast.error('No category field found in product');
         }
       } else {
-        toast.error('Vacancy not found');
+        toast.error('Resume not found');
       }
     } catch (error) {
-      console.log(error);
-      toast.error('Error fetching product data');
+      console.error('Error fetching resume data:', error);
+      toast.error('Error fetching resume data');
     }
   };
-
   const getRelatedResumes = () => {
     const filteredResumes = resumes.filter(
       resume =>

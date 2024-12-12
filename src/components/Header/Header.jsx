@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronDown,
@@ -7,15 +7,44 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import etapLogo from '../../assets/icon/etap-logo.png';
 import Navbar from './Navbar';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logOut } from '../../redux/authSlice';
 import { useEffect } from 'react';
 import { Dropdown } from 'rsuite';
+import { db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const Header = () => {
   const location = useLocation();
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const currentUser = useSelector(state => state.auth.currentUser);
+
+  const handleProfileClick = async () => {
+    if (currentUser) {
+      try {
+        const userRef = doc(db, 'Users', currentUser.uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+
+          if (userData.isWorker) {
+            navigate('/createResumes');
+          } else {
+            navigate('/createVacancy');
+          }
+        } else {
+          toast.error('User data not found!', { position: 'bottom-center' });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        toast.error('Error fetching user data!', { position: 'bottom-center' });
+      }
+    }
+  };
+
   const handleLogout = () => {
     dispatch(logOut());
   };
@@ -46,7 +75,7 @@ const Header = () => {
           <ul className="flex gap-5">
             <Link
               className="text-white hover:text-neutral-400"
-              to="/createResumes"
+              onClick={handleProfileClick}
             >
               Профиль
             </Link>

@@ -1,35 +1,22 @@
 export const addInfo = (section, formData, setFormData) => {
-  const newItem = {
-    id: Date.now(),
-    ...(section === 'work' && {
+  setFormData(prevState => {
+    const newState = { ...prevState };
+
+    if (!Array.isArray(newState[section])) {
+      newState[section] = [];
+    }
+    newState[section].push({
+      id: new Date().getTime(),
       skills: '',
       company: '',
-      profession: '',
+      position: '',
       city: '',
-      startDate: '',
-      endDate: '',
-      ongoing: false,
-      achievements: '',
-    }),
-    ...(section === 'education' && {
-      eduCenter: '',
-      eduLevel: '',
-      department: '',
-      city: '',
-      startDate: '',
-      endDate: '',
-      ongoing: false,
-    }),
-    ...(section === 'language' && {
-      lang: '',
-      langLevel: '',
-    }),
-  };
+      dateRange: { startDate: null, endDate: null },
+      stillWorks: false,
+    });
 
-  setFormData(prevState => ({
-    ...prevState,
-    [section]: [...prevState[section], newItem],
-  }));
+    return newState;
+  });
 };
 
 export const deleteInfo = (section, id, formData, setFormData) => {

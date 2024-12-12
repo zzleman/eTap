@@ -73,6 +73,7 @@ const Resumes = () => {
   const { catId } = useParams();
 
   const handleNavigate = id => {
+    console.log('Navigating to ID:', id);
     catId
       ? navigate(`/resumes/${categoryId}/${id}`)
       : navigate(`/resumes/${id}`);

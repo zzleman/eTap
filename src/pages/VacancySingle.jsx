@@ -119,7 +119,7 @@ const VacancySingle = () => {
                 <div className="place-time text-xs py-7 flex flex-col gap-3">
                   <h5>{productData.location || 'Location'}</h5>
                   <p>
-                    Обновлено
+                    Обновлено:{' '}
                     {new Date(
                       productData.updatedAt?.toDate()
                     ).toLocaleDateString()}
@@ -127,33 +127,33 @@ const VacancySingle = () => {
                 </div>
               </div>
 
-              <div className="details w-96 flex flex-col gap-3 mb-7 capitalize">
-                <h4 className="flex">
+              <div className="details w-96 flex flex-col gap-3 mb-10 capitalize">
+                <p className="flex">
                   <span className="text-black font-bold w-2/4">
                     График работы:
                   </span>
                   <span>{productData.workShift || 'Schedule'}</span>
-                </h4>
-                <h4 className="flex">
+                </p>
+                <p className="flex">
                   <span className="text-black font-bold w-2/4">Опыт:</span>
                   <span>{productData.experience || 'Experience'} years</span>
-                </h4>
-                <h4 className="flex">
+                </p>
+                <p className="flex">
                   <span className="text-black font-bold w-2/4">
                     Образование:
                   </span>
                   <span>{productData.education || 'Education'}</span>
-                </h4>
-                <h4 className="flex">
+                </p>
+                <p className="flex">
                   <span className="text-black font-bold w-2/4">Занятость:</span>
                   <span>{productData.jobType || 'Employment type'}</span>
-                </h4>
+                </p>
               </div>
 
               <div className="job-requirements flex flex-col gap-6">
-                <h2 className="font-bold text-black">
+                <p className="font-bold text-black text-base">
                   Должностные объязанности:
-                </h2>
+                </p>
                 <div
                   className="job-description"
                   dangerouslySetInnerHTML={{
@@ -163,7 +163,7 @@ const VacancySingle = () => {
               </div>
 
               <div className="company-desc flex flex-col gap-6 my-6">
-                <h3 className="font-bold text-black">About Company:</h3>
+                <p className="font-bold text-black text-base">About Company:</p>
                 <div
                   className="job-description "
                   dangerouslySetInnerHTML={{
@@ -182,9 +182,9 @@ const VacancySingle = () => {
                   alt="Company Logo"
                 />
                 <div>
-                  <h5 className="font-bold pl-1 text-black">
+                  <p className="font-bold pl-1 text-black">
                     {productData.companyName || 'Company Name'}
-                  </h5>
+                  </p>
                   <div className="flex items-center gap-3">
                     <img
                       className="w-6 h-6"

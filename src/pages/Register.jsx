@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import authBg from '../assets/img/auth-bg.jpeg';
 import logo from '../assets/icon/etap-logo.png';
 import { ErrorMessage, useFormik } from 'formik';
@@ -8,8 +8,11 @@ import { auth, db } from '../firebase';
 import { setDoc, doc } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import Roles from '../components/Role/Roles';
 
 const Register = () => {
+  const [isWorker, setIsWorker] = useState(false);
+
   const onSubmit = async (values, actions) => {
     try {
       await createUserWithEmailAndPassword(auth, values.email, values.password);
@@ -17,6 +20,7 @@ const Register = () => {
       if (user) {
         await setDoc(doc(db, 'Users', user.uid), {
           email: user.email,
+          isWorker: values.isWorker,
         });
       }
       toast.success('User registered successfully!', {
@@ -27,6 +31,7 @@ const Register = () => {
       toast.error(error.message, { position: 'bottom-center' });
     }
   };
+
   const {
     values,
     errors,
@@ -39,11 +44,17 @@ const Register = () => {
     initialValues: {
       email: '',
       password: '',
+      isWorker: false,
       confirmPassword: '',
     },
     validationSchema: registerSchema,
     onSubmit,
   });
+
+  const handleRoleSelection = role => {
+    setIsWorker(role === 'worker');
+    values.isWorker = role === 'worker';
+  };
 
   return (
     <div
@@ -78,6 +89,24 @@ const Register = () => {
                 action=""
                 className="flex flex-col gap-3 text-xs"
               >
+                <div className=" justify-center items-center gap-4 grid grid-cols-2 px-4">
+                  <div
+                    onClick={() => handleRoleSelection('worker')}
+                    className={`border h-8 cursor-pointer flex items-center justify-center ${
+                      isWorker ? 'bg-white text-neutral-500' : ''
+                    }`}
+                  >
+                    <p>Worker</p>
+                  </div>
+                  <div
+                    onClick={() => handleRoleSelection('admin')}
+                    className={`border h-8 cursor-pointer flex items-center justify-center ${
+                      !isWorker ? 'bg-white text-neutral-400' : ''
+                    }`}
+                  >
+                    <p>Admin</p>
+                  </div>
+                </div>
                 <input
                   value={values.email}
                   onChange={handleChange}

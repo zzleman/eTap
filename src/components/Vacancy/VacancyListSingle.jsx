@@ -9,6 +9,7 @@ const VacancyListSingle = ({
   salary,
   title,
   companyName,
+  companyLogo,
   location,
   createdAt,
   jobDescription,
@@ -76,15 +77,19 @@ const VacancyListSingle = ({
         onClick={() => handleNavigate(id)}
       >
         <div className="middle-top flex gap-3">
-          <h3 className="font-bold">{title}</h3>
+          <h3 className="font-bold text-base text-nowrap">{title}</h3>
           <p className="bg-red-300 w-24 h-6 flex justify-center items-center ">
             Срочно
           </p>
         </div>
-        <div className="middle-center flex gap-3 text-xs">
-          <h5 className="font-bold">{companyName}</h5>
-          <p className="text-neutral-400">{location}</p>
-          <p className="text-neutral-400">{getTimeAgo(createdAt)}</p>
+        <div className="middle-center flex gap-3 text-xs items-center">
+          <p className="font-bold">{companyName}</p>
+          <div className="flex items-center">
+            <p className="text-neutral-400">{location}</p>
+          </div>
+          <div>
+            <p className="text-neutral-400">{getTimeAgo(createdAt)}</p>
+          </div>
         </div>
         <div
           className="middle-bottom text-sm text-neutral-500 leading-6"
@@ -94,11 +99,7 @@ const VacancyListSingle = ({
         />
       </div>
       <div className="right w-20 mr-9">
-        <img
-          className="h-16 w-36"
-          src="https://s3-alpha-sig.figma.com/img/5451/3a81/9f3730deafdbe47ddcf44125352d2255?Expires=1733702400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=l0Q2ZP2EE8-vMdyw338Gm9r3Xy~VkNvQ--gUVUAp9yAJNg0URognj6pGT1P70ajk6NO8SIqD9h9hKR1KjnBiImDzlWtNzVTzV4q-M1zWn5nhwyrFGsOh13mX1tC9~rUAeGByo7gnkT71HeRnF1HFdF2F5K9PFr3qNCNCrAcxqswcLpjyoMNHFY1Lz7kU6ugrJBmbHPAuf5ymUex3Cr7OBC9HSVS49~Umb3ThEko292inytLjMFHX0Fb62eKBdfSScDUK2thLffdumlts9q3uTceQ2gdta~Y19l4Z7SvnFu4IpEx7eDacfgCKk9wZ4XehOh9vs5daJ963XQ5jwMmK1w__"
-          alt=""
-        />
+        <img className="h-16 w-36" src={companyLogo} alt="" />
       </div>
     </div>
   );

@@ -6,11 +6,32 @@ import { CreateVacancySchema } from '../schemas/CreateVacancySchema';
 import { toast } from 'react-toastify';
 import TextEditor from '../components/Editor/TextEditor';
 import { serverTimestamp } from 'firebase/firestore';
+import profilePhoto from '../assets/img/user.png';
 
 const CreateVacancy = () => {
   const [categories, setCategories] = useState([]);
+  const [profilePic, setProfilePic] = useState('');
+  const [urlPath, setUrlPath] = useState('');
 
+  const handleUrlChange = e => {
+    setUrlPath(e.target.value);
+  };
+
+  const isValidImageUrl = url => {
+    return /\.(jpeg|jpg|gif|png|webp)$/.test(url); // A simple check for image extensions
+  };
+
+  // Add Profile Pic function
+  const addProfilePic = setFieldValue => {
+    if (isValidImageUrl(urlPath)) {
+      setProfilePic(urlPath);
+      setFieldValue('companyLogo', urlPath); // Update Formik's companyLogo value
+    } else {
+      toast.error('Please provide a valid image URL');
+    }
+  };
   const onSubmit = async (values, actions) => {
+    console.log('Form Values:', values);
     try {
       const docRef = await addDoc(collection(db, 'vacancies'), {
         title: values.title,
@@ -23,7 +44,7 @@ const CreateVacancy = () => {
         jobDescription: values.jobDescription,
         companyName: values.companyName,
         location: values.location,
-        companyLogo: values.companyLogo,
+        companyLogo: values.companyLogo || '',
         companyDescription: values.companyDescription,
         createdAt: serverTimestamp(),
       });
@@ -43,6 +64,7 @@ const CreateVacancy = () => {
     errors,
     touched,
     isSubmitting,
+    setFieldValue,
     handleBlur,
     handleChange,
     handleSubmit,
@@ -58,7 +80,7 @@ const CreateVacancy = () => {
       jobDescription: '',
       companyName: '',
       location: '',
-      companyLogo: null,
+      companyLogo: '',
       companyDescription: '',
     },
     validationSchema: CreateVacancySchema,
@@ -316,24 +338,50 @@ const CreateVacancy = () => {
               </div>
 
               {/* Company Logo */}
-              <div className="form-group flex flex-col gap-2 col-span-12">
-                <label className="font-bold" htmlFor="logo">
-                  Company Logo
-                </label>
-                <span className="text-xs text-neutral-400">
-                  It’s highly recommended to use your Twitter or Facebook
-                  avatar. Optional — Your company logo will appear at the top of
-                  your listing and live profile.
-                </span>
-                <input
-                  type="file"
-                  id="logo"
-                  name="logo"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className="h-16 border px-3 py-4"
-                  accept="image/*"
-                />
+              <div className="form-group flex col-span-12">
+                <div className="border p-2 rounded-md w-2/4 flex gap-5 items-center">
+                  <div className="profile-pic bg-[#eeeeee] size-40 rounded-md border border-yellow-400 flex items-center justify-center">
+                    {profilePic ? (
+                      <img
+                        className="size-full"
+                        src={profilePic}
+                        alt="Profile"
+                      />
+                    ) : (
+                      <img
+                        className="size-28"
+                        src={profilePhoto}
+                        alt="Profile"
+                      />
+                    )}
+                  </div>
+
+                  <div className="file-upload flex flex-col gap-5 items-center">
+                    <p>Image Url:</p>
+                    <input
+                      type="text"
+                      className="h-11 border border-yellow-400 w-64 rounded-md my-3 outline-none px-2"
+                      value={urlPath} // Use urlPath for the value
+                      onChange={e => {
+                        setUrlPath(e.target.value); // Update local state
+                        setFieldValue('companyLogo', e.target.value); // Update Formik's companyLogo value
+                      }}
+                      onBlur={handleBlur}
+                    />
+
+                    {errors.profilePicture && (
+                      <div className="text-red-500">
+                        {errors.profilePicture.message}
+                      </div>
+                    )}
+                    <p
+                      className="border border-yellow-400 h-7 w-24 rounded-md flex justify-center items-center cursor-pointer"
+                      onClick={() => addProfilePic(setFieldValue)} // Pass setFieldValue correctly
+                    >
+                      Add Photo
+                    </p>
+                  </div>
+                </div>
                 {errors.logo && touched.logo && (
                   <p className="text-red-500 text-xs">{errors.logo}</p>
                 )}

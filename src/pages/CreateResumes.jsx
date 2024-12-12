@@ -15,6 +15,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  serverTimestamp,
   setDoc,
   Timestamp,
   updateDoc,
@@ -79,6 +80,44 @@ const CreateResumes = () => {
       setCategories(categoriesData);
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const publishProfile = async () => {
+    if (!userId) {
+      toast.error('User not authenticated!', { position: 'top-center' });
+      return;
+    }
+
+    try {
+      const userRef = doc(db, 'Users', userId);
+      const userSnapshot = await getDoc(userRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        const resumeData = userData.resumes?.[0]; // Assuming the first resume is what needs to be published
+
+        if (resumeData) {
+          // Use addDoc to automatically generate the document ID
+          const resumeRef = await addDoc(collection(db, 'resumes'), {
+            ...resumeData, // Add resume data
+            publishedAt: serverTimestamp(), // Add the published timestamp using serverTimestamp() for better consistency
+          });
+
+          toast.success('Profile published successfully!', {
+            position: 'top-center',
+          });
+        } else {
+          toast.error('No resume found to publish!', {
+            position: 'top-center',
+          });
+        }
+      } else {
+        toast.error('User not found!', { position: 'top-center' });
+      }
+    } catch (error) {
+      console.error('Error publishing profile:', error);
+      toast.error('Failed to publish profile!', { position: 'bottom-center' });
     }
   };
 
@@ -151,11 +190,14 @@ const CreateResumes = () => {
         const userData = userSnapshot.data();
         const resumeData = userData.resumes?.[0] || {};
 
-        console.log('Fetched resume data:', resumeData); // Log fetched data for debugging
+        const profilePicUrl = resumeData.profilePicture || '';
+        setProfilePic(profilePicUrl);
+        setUrlPath(profilePicUrl);
 
-        setNestedValues(resumeData); // Populate form with converted date values
+        setValue('profilePicture', profilePicUrl);
+        setNestedValues(resumeData);
 
-        setFormData(resumeData); // Set form data for display
+        setFormData(resumeData);
       }
     } catch (error) {
       console.error('Error fetching resume:', error);
@@ -179,11 +221,13 @@ const CreateResumes = () => {
       const userData = userSnapshot.exists() ? userSnapshot.data() : {};
       const existingResumes = userData.resumes || [];
 
-      const resumeId =
-        data.id || existingResumes[0]?.id || Date.now().toString();
+      const vacancyId =
+        data.vacancyId ||
+        existingResumes[0]?.vacancyId ||
+        Date.now().toString();
 
       const resumeIndex = existingResumes.findIndex(
-        resume => resume.id === resumeId
+        resume => resume.vacancyId === vacancyId
       );
 
       let updatedResumes;
@@ -199,7 +243,7 @@ const CreateResumes = () => {
         updatedResumes = [
           ...existingResumes,
           {
-            id: resumeId,
+            vacancyId: vacancyId,
             ...removeUndefinedFields(data),
             createdAt: new Date().toISOString(),
           },
@@ -1064,73 +1108,17 @@ const CreateResumes = () => {
                   <p>no language data found</p>
                 )}
               </div>
-              {/* <div className="advanced-item w-[635px]">
-                <FormDropdown>
-                  <div className="flex gap-4">
-                    <img className="size-6" src={portfolioIcon} alt="" />
-                    <p>Портфолио</p>
-                  </div>
-                  <p
-                    className="cursor-pointer"
-                    onClick={() => document.getElementById('fileInput').click()}
-                  >
-                    +Добавить
-                  </p>
-                  <input
-                    type="file"
-                    id="fileInput"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    style={{ display: 'none' }}
-                  />
-                  {errors?.portfolio && (
-                    <p className="text-red-500 text-xs mt-2">
-                      {errors.portfolio.message ||
-                        'You can only upload up to 5 images'}
-                    </p>
-                  )}
-                </FormDropdown>
-                <div className="portfolio-images grid grid-cols-5 gap-2 my-3 border p-3">
-                  {formData.portfolio.length === 0 ? (
-                    <p className="text-nowrap text-xs">No images uploaded</p>
-                  ) : (
-                    formData.portfolio.map((image, index) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={image}
-                          alt={`Portfolio ${index}`}
-                          className="w-32 h-32 object-cover rounded"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-0 right-0 bg-red-500 text-white px-1.5"
-                        >
-                          X
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div> */}
             </div>
           </div>
           <div className="right w-6/12 my-16">
             <div className="profile-pic bg-[#eeeeee] size-40 rounded-md border border-yellow-400 flex items-center justify-center">
-              {profilePic ? (
-                <img
-                  className="size-full"
-                  src={profilePic ? profilePic : profilePhoto}
-                  alt=""
-                />
-              ) : (
-                <img
-                  className="size-24"
-                  src={profilePic ? profilePic : profilePhoto}
-                  alt=""
-                />
-              )}
+              <img
+                className="size-full"
+                src={profilePic ? profilePic : profilePhoto}
+                alt="Profile"
+              />
             </div>
+
             <div className="file-upload flex flex-col items-center w-1/3">
               <input
                 type="text"
@@ -1148,13 +1136,19 @@ const CreateResumes = () => {
                 className="border border-yellow-400 h-7 w-24 rounded-md flex justify-center items-center cursor-pointer"
                 onClick={addProfilePic}
               >
-                add photo
+                Add Photo
               </p>
             </div>
           </div>
         </div>
         <button type="submit" className="border-2 p-3 my-5">
           Submit
+        </button>
+        <button
+          className="border-2 border-yellow-400 mx-5 p-3"
+          onClick={publishProfile}
+        >
+          Publish profile
         </button>
       </form>
     </div>
