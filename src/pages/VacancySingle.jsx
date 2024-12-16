@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import col from '../assets/icon/col.png';
 import row from '../assets/icon/row.png';
-import verifiedIcon from '../assets/icon/verified.png';
-import dislikeIcon from '../assets/icon/dislike.png';
-import shareIcon from '../assets/icon/share.png';
-import starIcon from '../assets/icon/star.png';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
+import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -185,13 +185,9 @@ const VacancySingle = () => {
                   <p className="font-bold pl-1 text-black">
                     {productData.companyName || 'Company Name'}
                   </p>
-                  <div className="flex items-center gap-3">
-                    <img
-                      className="w-6 h-6"
-                      src={verifiedIcon}
-                      alt="Verified"
-                    />
-                    <p className="text-green-600">Проверенно</p>
+                  <div className="flex items-center gap-3 text-green-600">
+                    <VerifiedUserOutlinedIcon style={{ fontSize: 'large' }} />
+                    <p>Проверенно</p>
                   </div>
                 </div>
               </div>
@@ -212,21 +208,21 @@ const VacancySingle = () => {
 
         <div className="utils flex justify-center gap-14 text-xs text-neutral-500 mb-7">
           <div className="flex gap-3 items-center">
-            <img src={starIcon} alt="Favorite" />
+            <StarOutlineOutlinedIcon style={{ fontSize: 'large' }} />
             <p>В избранное</p>
           </div>
           <div className="flex gap-3 items-center">
-            <img src={dislikeIcon} alt="Dislike" />
+            <ThumbDownOutlinedIcon style={{ fontSize: 'large' }} />
             <p>Пожаловаться</p>
           </div>
           <div className="flex gap-3 items-center">
-            <img src={shareIcon} alt="Share" />
+            <ShareOutlinedIcon style={{ fontSize: 'large' }} />
             <p>Поделиться</p>
           </div>
         </div>
       </div>
 
-      <div className="related-vacancies">
+      <div className="related-vacancies flex">
         <p className="bg-yellow-100 h-10 flex items-center px-5 text-sm font-bold border-b">
           Похожие вакансии
         </p>
@@ -235,7 +231,7 @@ const VacancySingle = () => {
             <VacancyListSingle {...vacancy} key={vacancy.id} />
           ))
         ) : (
-          <p>No related vacancies found</p>
+          <p className="m-4 text-sm">No related vacancies found...</p>
         )}
         <div className="flex justify-center my-10">
           <button className="h-10 w-44 text-xs border">

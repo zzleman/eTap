@@ -14,8 +14,8 @@ const TextEditor = ({ id, name, value, onChange, onBlur }) => {
   return (
     <Editor
       apiKey="qzo12pe2kdjj9jn3wr7z0anxcymjyhkoy9sk2706t17c1v3c"
-      value={value} // Bind value from Formik
-      name={name} // Use name for Formik field binding
+      value={value}
+      name={name}
       id={id}
       init={{
         plugins: [
@@ -36,8 +36,8 @@ const TextEditor = ({ id, name, value, onChange, onBlur }) => {
         toolbar:
           'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
       }}
-      onEditorChange={handleEditorChange} // Ensure Formik state updates on editor change
-      onBlur={onBlur} // Use Formik's onBlur
+      onEditorChange={handleEditorChange}
+      onBlur={onBlur}
     />
   );
 };

@@ -40,7 +40,6 @@ export const CreateVacancySchema = Yup.object().shape({
     .url('Please enter a valid URL')
     .nullable()
     .test('validImageUrl', 'Please provide a valid image URL', value => {
-      // If the value exists, ensure it's an image URL (simple check for image extensions)
       return value ? /\.(jpeg|jpg|gif|png|webp)$/.test(value) : true;
     }),
 

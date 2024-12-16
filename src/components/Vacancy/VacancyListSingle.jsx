@@ -1,7 +1,7 @@
-import verifiedIcon from '../../assets/icon/verified.png';
-import dislikeIcon from '../../assets/icon/dislike.png';
-import shareIcon from '../../assets/icon/share.png';
-import starIcon from '../../assets/icon/star.png';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
+import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const VacancyListSingle = ({
@@ -55,21 +55,32 @@ const VacancyListSingle = ({
         <span className="w-28 h-10 bg-yellow-200 flex justify-center items-center">
           {salary} AZN
         </span>
-        <div className="flex gap-3 mb-5 text-green-500">
-          <img src={verifiedIcon} alt="" />
+        <div className="flex gap-3 mb-4 text-green-500">
+          <VerifiedUserOutlinedIcon style={{ fontSize: 'large' }} />
           <p>Проверенно</p>
         </div>
-        <div className="flex gap-3">
-          <img src={dislikeIcon} alt="" />
-          <p>Пожаловаться</p>
-        </div>
-        <div className="flex gap-3">
-          <img src={shareIcon} alt="" />
-          <p>Поделиться</p>
-        </div>
-        <div className="flex gap-3">
-          <img src={starIcon} alt="" />
-          <p>В избранное</p>
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-3">
+            <ThumbDownOutlinedIcon
+              className="text-neutral-400"
+              style={{ fontSize: 'large' }}
+            />
+            <p>Пожаловаться</p>
+          </div>
+          <div className="flex gap-3">
+            <ShareOutlinedIcon
+              className="text-neutral-400"
+              style={{ fontSize: 'large' }}
+            />
+            <p>Поделиться</p>
+          </div>
+          <div className="flex gap-3">
+            <StarOutlineOutlinedIcon
+              className="text-neutral-400"
+              style={{ fontSize: 'large' }}
+            />
+            <p>В избранное</p>
+          </div>
         </div>
       </div>
       <div

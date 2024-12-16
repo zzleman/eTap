@@ -83,43 +83,42 @@ const CreateResumes = () => {
     }
   };
 
-  const publishProfile = async () => {
-    if (!userId) {
-      toast.error('User not authenticated!', { position: 'top-center' });
-      return;
-    }
+  // const publishProfile = async () => {
+  //   if (!userId) {
+  //     toast.error('User not authenticated!', { position: 'top-center' });
+  //     return;
+  //   }
 
-    try {
-      const userRef = doc(db, 'Users', userId);
-      const userSnapshot = await getDoc(userRef);
+  //   try {
+  //     const userRef = doc(db, 'Users', userId);
+  //     const userSnapshot = await getDoc(userRef);
 
-      if (userSnapshot.exists()) {
-        const userData = userSnapshot.data();
-        const resumeData = userData.resumes?.[0]; // Assuming the first resume is what needs to be published
+  //     if (userSnapshot.exists()) {
+  //       const userData = userSnapshot.data();
+  //       const resumeData = userData.resumes?.[0];
 
-        if (resumeData) {
-          // Use addDoc to automatically generate the document ID
-          const resumeRef = await addDoc(collection(db, 'resumes'), {
-            ...resumeData, // Add resume data
-            publishedAt: serverTimestamp(), // Add the published timestamp using serverTimestamp() for better consistency
-          });
+  //       if (resumeData) {
+  //         const resumeRef = await addDoc(collection(db, 'resumes'), {
+  //           ...resumeData,
+  //           publishedAt: serverTimestamp(),
+  //         });
 
-          toast.success('Profile published successfully!', {
-            position: 'top-center',
-          });
-        } else {
-          toast.error('No resume found to publish!', {
-            position: 'top-center',
-          });
-        }
-      } else {
-        toast.error('User not found!', { position: 'top-center' });
-      }
-    } catch (error) {
-      console.error('Error publishing profile:', error);
-      toast.error('Failed to publish profile!', { position: 'bottom-center' });
-    }
-  };
+  //         toast.success('Profile published successfully!', {
+  //           position: 'top-center',
+  //         });
+  //       } else {
+  //         toast.error('No resume found to publish!', {
+  //           position: 'top-center',
+  //         });
+  //       }
+  //     } else {
+  //       toast.error('User not found!', { position: 'top-center' });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error publishing profile:', error);
+  //     toast.error('Failed to publish profile!', { position: 'bottom-center' });
+  //   }
+  // };
 
   const {
     register,
@@ -132,6 +131,7 @@ const CreateResumes = () => {
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
+      // jobCategory: '',
       dateRange: {
         startDate: null,
         endDate: null,
@@ -188,7 +188,7 @@ const CreateResumes = () => {
 
       if (userSnapshot.exists()) {
         const userData = userSnapshot.data();
-        const resumeData = userData.resumes?.[0] || {};
+        const resumeData = userData.resumes || {};
 
         const profilePicUrl = resumeData.profilePicture || '';
         setProfilePic(profilePicUrl);
@@ -196,6 +196,8 @@ const CreateResumes = () => {
 
         setValue('profilePicture', profilePicUrl);
         setNestedValues(resumeData);
+
+        setValue('jobCategory', resumeData.jobCategory || '');
 
         setFormData(resumeData);
       }
@@ -215,47 +217,35 @@ const CreateResumes = () => {
       const userSnapshot = await getDoc(userRef);
 
       if (!userSnapshot.exists()) {
-        await setDoc(userRef, { resumes: [] });
+        await setDoc(userRef, { resumes: {} });
       }
 
       const userData = userSnapshot.exists() ? userSnapshot.data() : {};
-      const existingResumes = userData.resumes || [];
+      const existingResume = userData.resumes || {};
 
       const vacancyId =
-        data.vacancyId ||
-        existingResumes[0]?.vacancyId ||
-        Date.now().toString();
+        data.vacancyId || existingResume.vacancyId || Date.now().toString();
 
-      const resumeIndex = existingResumes.findIndex(
-        resume => resume.vacancyId === vacancyId
-      );
+      const updatedResume = {
+        vacancyId: vacancyId,
+        ...removeUndefinedFields(data),
+        updatedAt: new Date().toISOString(),
+      };
 
-      let updatedResumes;
+      await setDoc(userRef, { resumes: updatedResume }, { merge: true });
 
-      if (resumeIndex !== -1) {
-        updatedResumes = [...existingResumes];
-        updatedResumes[resumeIndex] = {
-          ...existingResumes[resumeIndex],
-          ...removeUndefinedFields(data),
-          updatedAt: new Date().toISOString(),
-        };
-      } else {
-        updatedResumes = [
-          ...existingResumes,
-          {
-            vacancyId: vacancyId,
-            ...removeUndefinedFields(data),
-            createdAt: new Date().toISOString(),
-          },
-        ];
-      }
+      const resumeRef = await addDoc(collection(db, 'resumes'), {
+        ...updatedResume,
+        userId: userId,
+        createdAt: serverTimestamp(),
+        publishedAt: serverTimestamp(),
+      });
 
-      await setDoc(userRef, { resumes: updatedResumes }, { merge: true });
-
-      toast.success('Resume added or updated successfully!', {
+      toast.success('Resume added or updated successfully and published!', {
         position: 'top-center',
       });
-      //  reset();
+
+      reset();
     } catch (error) {
       toast.error('Failed to add or update resume!', {
         position: 'bottom-center',
@@ -1144,12 +1134,12 @@ const CreateResumes = () => {
         <button type="submit" className="border-2 p-3 my-5">
           Submit
         </button>
-        <button
+        {/* <button
           className="border-2 border-yellow-400 mx-5 p-3"
           onClick={publishProfile}
         >
           Publish profile
-        </button>
+        </button> */}
       </form>
     </div>
   );

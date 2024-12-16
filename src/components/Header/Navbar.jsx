@@ -125,7 +125,7 @@ const Navbar = () => {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="relative flex gap-7 items-center text-white text-sm">
+      <div className="relative flex flex-col lg:flex-row gap-7 lg:items-center text-white text-sm">
         <select
           name="category"
           id="category"

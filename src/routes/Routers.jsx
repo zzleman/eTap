@@ -2,16 +2,16 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from '../firebase';
+import Company from '../pages/Company';
 import CreateResumes from '../pages/CreateResumes';
 import CreateVacancy from '../pages/CreateVacancy';
-import DateRangeForm from '../pages/DateRangeForm';
-
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Resumes from '../pages/Resumes';
 import ResumeSingle from '../pages/ResumeSingle';
 import Vacancies from '../pages/Vacancies';
+import VacanciesDashboard from '../pages/VacanciesDashboard';
 import VacancySingle from '../pages/VacancySingle';
 const Routers = () => {
   const currentUser = useSelector(state => state.auth.currentUser);
@@ -66,7 +66,9 @@ const Routers = () => {
           </RequireAuth>
         }
       />
-      <Route path="/salam" element={<DateRangeForm />} />
+      <Route path="/dashboard" element={<VacanciesDashboard />} />
+
+      <Route path="/companyDetails" element={<Company />} />
     </Routes>
   );
 };

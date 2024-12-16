@@ -4,7 +4,7 @@ import etapLogo from '../../assets/icon/etap-logo.png';
 const Footer = () => {
   return (
     <div className="text-white">
-      <div className="top flex justify-between bg-[#6D5297] px-36 h-60 items-center text-sm">
+      <div className="top flex flex-col lg:flex-row justify-between bg-[#6D5297] px-36 h-60 items-center text-sm">
         <div>
           <img className="h-8" src={etapLogo} alt="" />
           <p className="my-2">Слоган будет размещен здесь!</p>
