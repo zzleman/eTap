@@ -170,17 +170,10 @@ const CreateResumes = () => {
           }
         });
       } else {
-        if (value && value.seconds !== undefined) {
-          console.log(`Converting ${fieldName} to Date:`, value);
-          const date = new Date(value.seconds * 1000);
-          setValue(fieldName, date);
-        } else {
-          setValue(fieldName, value || '');
-        }
+        setValue(fieldName, value || '');
       }
     });
   };
-
   const fetchResume = async () => {
     try {
       const userRef = doc(db, 'Users', userId);
@@ -188,18 +181,17 @@ const CreateResumes = () => {
 
       if (userSnapshot.exists()) {
         const userData = userSnapshot.data();
-        const resumeData = userData.resumes || {};
+        const resumes = userData.resumes || {};
 
-        const profilePicUrl = resumeData.profilePicture || '';
-        setProfilePic(profilePicUrl);
-        setUrlPath(profilePicUrl);
-
-        setValue('profilePicture', profilePicUrl);
-        setNestedValues(resumeData);
-
-        setValue('jobCategory', resumeData.jobCategory || '');
-
-        setFormData(resumeData);
+        const [resumeId, resumeData] = Object.entries(resumes)?.[0] || [];
+        if (resumeData) {
+          const profilePicUrl = resumeData.profilePicture || '';
+          setProfilePic(profilePicUrl);
+          setUrlPath(profilePicUrl);
+          setValue('profilePicture', profilePicUrl);
+          setNestedValues(resumeData);
+          reset(resumeData);
+        }
       }
     } catch (error) {
       console.error('Error fetching resume:', error);
@@ -217,40 +209,43 @@ const CreateResumes = () => {
       const userSnapshot = await getDoc(userRef);
 
       if (!userSnapshot.exists()) {
-        await setDoc(userRef, { resumes: {} });
+        toast.error('User not found!', { position: 'top-center' });
+        return;
       }
 
-      const userData = userSnapshot.exists() ? userSnapshot.data() : {};
-      const existingResume = userData.resumes || {};
+      let resumes = userSnapshot.data().resumes || {};
 
-      const vacancyId =
-        data.vacancyId || existingResume.vacancyId || Date.now().toString();
+      const resumeId = Object.keys(resumes)[0] || Date.now().toString();
 
       const updatedResume = {
-        vacancyId: vacancyId,
+        vacancyId: resumeId,
         ...removeUndefinedFields(data),
         updatedAt: new Date().toISOString(),
       };
 
-      await setDoc(userRef, { resumes: updatedResume }, { merge: true });
-
-      const resumeRef = await addDoc(collection(db, 'resumes'), {
-        ...updatedResume,
-        userId: userId,
-        createdAt: serverTimestamp(),
-        publishedAt: serverTimestamp(),
+      await updateDoc(userRef, {
+        [`resumes.${resumeId}`]: updatedResume,
       });
 
-      toast.success('Resume added or updated successfully and published!', {
-        position: 'top-center',
-      });
+      const resumeRef = doc(db, 'resumes', resumeId);
+      const resumeSnapshot = await getDoc(resumeRef);
 
+      if (resumeSnapshot.exists()) {
+        await updateDoc(resumeRef, updatedResume);
+      } else {
+        await setDoc(resumeRef, {
+          ...updatedResume,
+          userId: userId,
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      toast.success('Resume updated successfully!', { position: 'top-center' });
       reset();
+      fetchResume();
     } catch (error) {
-      toast.error('Failed to add or update resume!', {
-        position: 'bottom-center',
-      });
-      console.error(error);
+      toast.error('Failed to update resume!', { position: 'bottom-center' });
+      console.error('Error submitting resume:', error);
     }
   };
 

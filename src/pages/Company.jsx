@@ -89,24 +89,35 @@ const Company = () => {
       console.log('Firestore document reference:', userRef);
 
       const userSnapshot = await getDoc(userRef);
+
       if (userSnapshot.exists()) {
         console.log('User document found:', userSnapshot.data());
 
-        const companyData = {
-          name: data.name,
-          email: data.email,
-          location: data.location,
-          companyImg: data.companyImg,
-          description: data.description,
-        };
-        await updateDoc(userRef, {
-          company: companyData,
-        });
+        const existingData = userSnapshot.data();
+        const existingResumes = existingData.resumes || {}; // Fetch existing resumes
 
-        toast.success('Company information updated successfully!', {
+        // Create or update the specific resume
+        const vacancyId = data.vacancyId || Date.now().toString();
+        const updatedResume = {
+          vacancyId: vacancyId,
+          ...removeUndefinedFields(data), // Remove undefined fields if needed
+          updatedAt: new Date().toISOString(),
+        };
+
+        // Update resumes object
+        const updatedResumes = {
+          ...existingResumes,
+          [vacancyId]: updatedResume, // Update or add specific resume
+        };
+
+        // Write back the updated resumes object
+        await updateDoc(userRef, { resumes: updatedResumes });
+
+        toast.success('Resume updated successfully!', {
           position: 'top-center',
         });
-        reset();
+
+        reset(); // Reset the form after submission
       } else {
         console.log('User document does not exist.');
         toast.error('User document does not exist!', {
@@ -114,7 +125,7 @@ const Company = () => {
         });
       }
     } catch (error) {
-      console.error('Error updating company information:', error);
+      console.error('Error updating resume information:', error);
       toast.error('Something went wrong!', { position: 'top-center' });
     }
   };
