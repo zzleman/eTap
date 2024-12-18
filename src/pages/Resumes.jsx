@@ -7,9 +7,11 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import Loading from '../components/Loading/Loading';
+
 const Resumes = () => {
   const [resumes, setResumes] = useState([]);
-
+  const [loading, setLoading] = useState(true);
   const { search } = useLocation();
 
   const getQueryParams = queryName => {
@@ -26,6 +28,7 @@ const Resumes = () => {
   const jobType = getQueryParams('jobType');
 
   const getResumes = async () => {
+    setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, 'resumes'));
       const allResumes = querySnapshot.docs.map(doc => ({
@@ -68,8 +71,11 @@ const Resumes = () => {
       setResumes(filteredResumes);
     } catch (error) {
       console.error('Error fetching resumes:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
   const { catId } = useParams();
 
   const handleNavigate = id => {
@@ -82,6 +88,10 @@ const Resumes = () => {
   useEffect(() => {
     getResumes();
   }, [search]);
+
+  if (loading) {
+    return <Loading loading={loading} />;
+  }
   return (
     <div className="px-36 py-5">
       <h1 className="text-2xl my-5">Резюме пользователя</h1>

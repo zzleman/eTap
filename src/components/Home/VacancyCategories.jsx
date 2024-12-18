@@ -3,18 +3,27 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../Loading/Loading';
 
 const VacancyCategories = () => {
   const [categories, setCategories] = useState();
   const navigate = useNavigate();
-  const getCategories = async () => {
-    const querySnapshot = await getDocs(collection(db, 'JobCategories'));
-    const categories = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+  const [loading, setLoading] = useState(true);
 
-    setCategories(categories);
+  const getCategories = async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(db, 'JobCategories'));
+      const categories = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCategories(categories);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNavigationToVacancies = () => {
@@ -24,6 +33,9 @@ const VacancyCategories = () => {
   useEffect(() => {
     getCategories();
   }, []);
+  if (loading) {
+    <Loading loading={loading} />;
+  }
   return (
     <div className="px-36 flex flex-col gap-7 py-16">
       <div className="flex justify-between">

@@ -151,7 +151,8 @@ const Header = () => {
           </div>
         </div>
       </div>
-      {location.pathname !== '/' && <Navbar />}
+      {(location.pathname == '/vacancies' ||
+        location.pathname == '/resumes') && <Navbar />}
     </div>
   );
 };

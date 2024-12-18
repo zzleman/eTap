@@ -11,6 +11,8 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { toast } from 'react-toastify';
 import { useEffect } from 'react';
+import { ClimbingBoxLoader, ClipLoader, HashLoader } from 'react-spinners';
+import Loading from '../components/Loading/Loading';
 
 const schema = z.object({
   name: z.string().min(1, { message: 'Company name is required' }),
@@ -34,6 +36,7 @@ const Company = () => {
 
   const currentUser = useSelector(selectCurrentUser);
   const userId = currentUser?.uid;
+  const [loading, setLoading] = useState(false);
 
   const [profilePic, setProfilePic] = useState('');
   const [urlPath, setUrlPath] = useState('');
@@ -52,7 +55,7 @@ const Company = () => {
       toast.error('User ID not found. Please log in again.');
       return;
     }
-
+    setLoading(true);
     try {
       const userRef = doc(db, 'Users', userId);
       const userSnapshot = await getDoc(userRef);
@@ -75,6 +78,8 @@ const Company = () => {
     } catch (error) {
       console.error('Error updating company information:', error);
       toast.error('Failed to update company information. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,6 +87,7 @@ const Company = () => {
     if (!userId) {
       return;
     }
+    setLoading(true);
     try {
       const userRef = doc(db, 'Users', userId);
       const userSnapshot = await getDoc(userRef);
@@ -103,12 +109,19 @@ const Company = () => {
       }
     } catch (error) {
       console.error('Error fetching company:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchCompany();
   }, [userId]);
+
+  if (loading) {
+    return <Loading loading={loading} />;
+  }
+
   return (
     <div className="company-info px-36 my-10">
       <h1 className="text-[#563D7C] font-bold mb-5 text-xl">

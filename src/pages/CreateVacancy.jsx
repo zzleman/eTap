@@ -10,6 +10,7 @@ import TextEditor from '../components/Editor/TextEditor';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '../redux/authSlice';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../components/Loading/Loading';
 
 const CreateVacancy = () => {
   const [categories, setCategories] = useState([]);
@@ -46,7 +47,7 @@ const CreateVacancy = () => {
 
   const fetchCompanyData = async () => {
     if (!userId) return;
-
+    setLoading(true);
     try {
       const userRef = doc(db, 'Users', userId);
       const userSnapshot = await getDoc(userRef);
@@ -67,10 +68,13 @@ const CreateVacancy = () => {
     } catch (error) {
       console.error('Error fetching company data:', error);
       setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   const onSubmit = async data => {
+    setLoading(true);
     try {
       await addDoc(collection(db, 'vacancies'), {
         ...data,
@@ -87,6 +91,8 @@ const CreateVacancy = () => {
     } catch (error) {
       toast.error('Failed to create job vacancy.');
       console.error('Error adding vacancy:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,7 +102,7 @@ const CreateVacancy = () => {
   }, [userId]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading loading={loading} />;
   }
 
   return (

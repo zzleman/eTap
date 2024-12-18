@@ -3,10 +3,11 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import VacancyListSingle from '../components/Vacancy/VacancyListSingle';
 import { useLocation } from 'react-router-dom';
+import Loading from '../components/Loading/Loading';
 
 const Vacancies = () => {
   const [vacancies, setVacancies] = useState([]);
-
+  const [loading, setLoading] = useState(true);
   const { search } = useLocation();
 
   const getQueryParams = queryName => {
@@ -21,6 +22,7 @@ const Vacancies = () => {
   const jobType = getQueryParams('jobType');
 
   const getVacancies = async () => {
+    setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, 'vacancies'));
       const allVacancies = querySnapshot.docs.map(doc => ({
@@ -67,6 +69,8 @@ const Vacancies = () => {
       setVacancies(filteredVacancies);
     } catch (error) {
       console.error('Error fetching vacancies:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,6 +78,9 @@ const Vacancies = () => {
     getVacancies();
   }, [search]);
 
+  if (loading) {
+    return <Loading loading={loading} />;
+  }
   return (
     <div className="px-36 py-5">
       <h1 className="text-2xl font-bold py-5">Вакансии по фильтрам</h1>

@@ -3,23 +3,23 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import verifiedIcon from '../assets/icon/verified.png';
-import dislikeIcon from '../assets/icon/dislike.png';
-import shareIcon from '../assets/icon/share.png';
-import starIcon from '../assets/icon/star.png';
 import SiteParsingIcon from '@rsuite/icons/SiteParsing';
 import PhoneIcon from '@rsuite/icons/Phone';
 import EmailIcon from '@rsuite/icons/Email';
-
+import Loading from '../components/Loading/Loading';
 import { db } from '../firebase';
+
 const ResumeSingle = () => {
   const { id: productId } = useParams();
 
   const [productData, setProductData] = useState(null);
   const [categoryName, setCategoryName] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [resumes, setResumes] = useState([]);
   const [relatedResumes, setRelatedResumes] = useState([]);
 
   const fetchAllResumes = async () => {
+    setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, 'resumes'));
       const resumesData = querySnapshot.docs.map(doc => ({
@@ -30,10 +30,13 @@ const ResumeSingle = () => {
     } catch (error) {
       console.error('Error fetching resumes:', error);
       toast.error('Error fetching resumes');
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchProduct = async () => {
+    setLoading(true);
     try {
       const docRef = doc(db, 'resumes', productId);
       const docSnap = await getDoc(docRef);
@@ -61,14 +64,9 @@ const ResumeSingle = () => {
     } catch (error) {
       console.error('Error fetching resume data:', error);
       toast.error('Error fetching resume data');
+    } finally {
+      setLoading(false);
     }
-  };
-  const getRelatedResumes = () => {
-    const filteredResumes = resumes.filter(
-      resume =>
-        resume.category === productData?.category && resume.id !== productId
-    );
-    setRelatedResumes(filteredResumes);
   };
 
   useEffect(() => {
@@ -76,8 +74,8 @@ const ResumeSingle = () => {
     fetchAllResumes();
   }, [productId]);
 
-  if (!productData) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return <Loading loading={loading} />;
   }
 
   return (
@@ -102,19 +100,10 @@ const ResumeSingle = () => {
                     })
                   : 'N/A'}
               </h5>
-
-              {/* <p>
-                Обновлено
-                {new Date(productData.updatedAt?.toDate()).toLocaleDateString()}
-              </p> */}
             </div>
           </div>
 
           <div className="details w-96 flex flex-col gap-3 mb-7 capitalize">
-            {/* <h4 className="flex">
-              <span className="text-black font-bold w-2/4">График работы:</span>
-              <span>{productData.workShift || 'Schedule'}</span>
-            </h4> */}
             <h4 className="text-sm flex items-center">
               <span className="text-black font-bold w-2/4">Опыт:</span>
               <span className="lowercase">
@@ -129,14 +118,6 @@ const ResumeSingle = () => {
                 {productData.willingToRelocate ? 'yes' : 'no'}
               </span>
             </h4>
-            {/* <h4 className="flex">
-              <span className="text-black font-bold w-2/4">Образование:</span>
-              <span>{productData.education || 'Education'}</span>
-            </h4>
-            <h4 className="flex">
-              <span className="text-black font-bold w-2/4">Занятость:</span>
-              <span>{productData.jobType || 'Employment type'}</span>
-            </h4> */}
           </div>
 
           <div className="job-requirements flex flex-col gap-6">
@@ -257,16 +238,6 @@ const ResumeSingle = () => {
               </div>
             </div>
           </div>
-          {/* 
-          <div className="company-desc flex flex-col gap-6 my-6">
-            <h3 className="font-bold text-black">About Company:</h3>
-            <div
-              className="job-description "
-              dangerouslySetInnerHTML={{
-                __html: productData.companyDescription,
-              }}
-            />
-          </div> */}
         </div>
 
         <div className="right border border-b-0 h-96 p-7 text-xs text-neutral-500 w-[485px]">

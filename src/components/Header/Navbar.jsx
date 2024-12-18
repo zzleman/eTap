@@ -223,20 +223,6 @@ const Navbar = () => {
             <option value="internship">Internship</option>
             <option value="freelance">Freelance</option>
           </select>
-          <select
-            name="advanced-experience"
-            id="advanced-experience"
-            className="w-40 h-10 text-neutral-400 px-5"
-          >
-            <option value="">Опыт</option>
-          </select>
-          <select
-            name="advanced-type"
-            id="advanced-type"
-            className="w-40 h-10 text-neutral-400 px-5"
-          >
-            <option value="">Тип работы</option>
-          </select>
         </div>
       )}
     </div>

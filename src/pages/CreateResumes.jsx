@@ -33,11 +33,12 @@ import axios from 'axios';
 import { DatePicker } from 'rsuite';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '../redux/authSlice';
+import Loading from '../components/Loading/Loading';
 
 const CreateResumes = () => {
   const currentUser = useSelector(selectCurrentUser);
   const userId = currentUser?.uid;
-
+  const [loading, setLoading] = useState(true);
   const [dialCode, setDialCode] = useState([]);
   const uniqueDialCodes = [...new Set(dialCode)];
   const [profilePic, setProfilePic] = useState('');
@@ -100,6 +101,7 @@ const CreateResumes = () => {
       },
     },
   });
+
   function removeUndefinedFields(obj) {
     if (Array.isArray(obj)) {
       return obj.map(removeUndefinedFields);
@@ -137,6 +139,7 @@ const CreateResumes = () => {
     });
   };
   const fetchResume = async () => {
+    setLoading(true);
     try {
       const userRef = doc(db, 'Users', userId);
       const userSnapshot = await getDoc(userRef);
@@ -157,6 +160,8 @@ const CreateResumes = () => {
       }
     } catch (error) {
       console.error('Error fetching resume:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -165,7 +170,7 @@ const CreateResumes = () => {
       toast.error('User not authenticated!', { position: 'top-center' });
       return;
     }
-
+    setLoading(true);
     try {
       const userRef = doc(db, 'Users', userId);
       const userSnapshot = await getDoc(userRef);
@@ -207,6 +212,8 @@ const CreateResumes = () => {
     } catch (error) {
       toast.error('Failed to update resume!', { position: 'bottom-center' });
       console.error('Error submitting resume:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -242,6 +249,9 @@ const CreateResumes = () => {
     fetchResume();
   }, []);
 
+  if (loading) {
+    return <Loading loading={loading} />;
+  }
   return (
     <div className="px-36">
       <p>home/ vakansiya / dizayn</p>

@@ -11,16 +11,18 @@ import { db } from '../firebase';
 import { toast } from 'react-toastify';
 import Breadcrumb from '../components/Breadcrumb/Breadcrumb';
 import VacancyListSingle from '../components/Vacancy/VacancyListSingle';
+import Loading from '../components/Loading/Loading';
 
 const VacancySingle = () => {
   const { id: productId } = useParams();
-
   const [productData, setProductData] = useState(null);
   const [categoryName, setCategoryName] = useState(null);
   const [vacancies, setVacancies] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [relatedVacancies, setRelatedVacancies] = useState([]);
 
   const fetchAllVacancies = async () => {
+    setLoading(true);
     try {
       const querySnapshot = await getDocs(collection(db, 'vacancies'));
       const vacanciesData = querySnapshot.docs.map(doc => ({
@@ -31,10 +33,13 @@ const VacancySingle = () => {
     } catch (error) {
       console.error('Error fetching vacancies:', error);
       toast.error('Error fetching vacancies');
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchProduct = async () => {
+    setLoading(true);
     try {
       const docRef = doc(db, 'vacancies', productId);
       const docSnap = await getDoc(docRef);
@@ -62,15 +67,24 @@ const VacancySingle = () => {
     } catch (error) {
       console.log(error);
       toast.error('Error fetching product data');
+    } finally {
+      setLoading(false);
     }
   };
 
   const getRelatedVacancies = () => {
-    const filteredVacancies = vacancies.filter(
-      vacancy =>
-        vacancy.category === productData?.category && vacancy.id != productId
-    );
-    setRelatedVacancies(filteredVacancies);
+    setLoading(true);
+    try {
+      const filteredVacancies = vacancies.filter(
+        vacancy =>
+          vacancy.category === productData?.category && vacancy.id != productId
+      );
+      setRelatedVacancies(filteredVacancies);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -84,8 +98,8 @@ const VacancySingle = () => {
     }
   }, [productData, vacancies]);
 
-  if (!productData || !categoryName) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return <Loading loading={loading} />;
   }
 
   return (
