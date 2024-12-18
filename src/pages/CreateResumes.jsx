@@ -83,43 +83,6 @@ const CreateResumes = () => {
     }
   };
 
-  // const publishProfile = async () => {
-  //   if (!userId) {
-  //     toast.error('User not authenticated!', { position: 'top-center' });
-  //     return;
-  //   }
-
-  //   try {
-  //     const userRef = doc(db, 'Users', userId);
-  //     const userSnapshot = await getDoc(userRef);
-
-  //     if (userSnapshot.exists()) {
-  //       const userData = userSnapshot.data();
-  //       const resumeData = userData.resumes?.[0];
-
-  //       if (resumeData) {
-  //         const resumeRef = await addDoc(collection(db, 'resumes'), {
-  //           ...resumeData,
-  //           publishedAt: serverTimestamp(),
-  //         });
-
-  //         toast.success('Profile published successfully!', {
-  //           position: 'top-center',
-  //         });
-  //       } else {
-  //         toast.error('No resume found to publish!', {
-  //           position: 'top-center',
-  //         });
-  //       }
-  //     } else {
-  //       toast.error('User not found!', { position: 'top-center' });
-  //     }
-  //   } catch (error) {
-  //     console.error('Error publishing profile:', error);
-  //     toast.error('Failed to publish profile!', { position: 'bottom-center' });
-  //   }
-  // };
-
   const {
     register,
     handleSubmit,
@@ -131,7 +94,6 @@ const CreateResumes = () => {
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      // jobCategory: '',
       dateRange: {
         startDate: null,
         endDate: null,
@@ -239,7 +201,6 @@ const CreateResumes = () => {
           createdAt: serverTimestamp(),
         });
       }
-
       toast.success('Resume updated successfully!', { position: 'top-center' });
       reset();
       fetchResume();
@@ -605,11 +566,6 @@ const CreateResumes = () => {
                                   name={`work[${index}].dateRange.startDate`}
                                   control={control}
                                   render={({ field }) => {
-                                    console.log(
-                                      'Start Date Field Value:',
-                                      field.value
-                                    ); // Debug log
-
                                     return (
                                       <DatePicker
                                         {...field}
@@ -622,17 +578,17 @@ const CreateResumes = () => {
                                             const firebaseTimestamp =
                                               Timestamp.fromDate(
                                                 new Date(date)
-                                              ); // Convert to Firestore Timestamp
-                                            field.onChange(firebaseTimestamp); // Update field with Timestamp
+                                              );
+                                            field.onChange(firebaseTimestamp);
                                           } else {
-                                            field.onChange(null); // Handle null date case
+                                            field.onChange(null);
                                           }
                                         }}
                                         value={
                                           field.value instanceof Date
-                                            ? field.value // Directly use JavaScript Date
+                                            ? field.value
                                             : field.value && field.value.toDate
-                                              ? field.value.toDate() // Convert Firestore Timestamp to JS Date
+                                              ? field.value.toDate()
                                               : null
                                         }
                                         cleanable
@@ -671,57 +627,22 @@ const CreateResumes = () => {
                                         if (date) {
                                           const firebaseTimestamp =
                                             Timestamp.fromDate(new Date(date));
-                                          field.onChange(firebaseTimestamp); // Save to Firestore as Timestamp
+                                          field.onChange(firebaseTimestamp);
                                         } else {
                                           field.onChange(null);
                                         }
                                       }}
                                       value={
                                         field.value instanceof Timestamp
-                                          ? field.value.toDate() // Convert Firestore Timestamp to Date object
+                                          ? field.value.toDate()
                                           : field.value instanceof Date
-                                            ? field.value // Use Date object if it's already a Date
-                                            : null // Use null if no valid value
+                                            ? field.value
+                                            : null
                                       }
                                       cleanable
                                     />
                                   )}
                                 />
-
-                                {/* <Controller
-                                  name={`work[${index}].dateRange.endDate`}
-                                  control={control}
-                                  render={({ field }) => (
-                                    <DatePicker
-                                      {...field}
-                                      format="MM/yyyy"
-                                      style={{ width: 200 }}
-                                      placeholder="Select End Date"
-                                      placement="auto"
-                                      disabled={work.stillWorks}
-                                      onChange={date => {
-                                        if (date) {
-                                          // Convert to Firebase Timestamp
-                                          const firebaseTimestamp =
-                                            Timestamp.fromDate(new Date(date));
-                                          field.onChange(firebaseTimestamp); // Update the field value
-                                          console.log(
-                                            'Selected Start Date:',
-                                            firebaseTimestamp
-                                          );
-                                        } else {
-                                          field.onChange(null); // Clear the value if no date is selected
-                                        }
-                                      }}
-                                      value={
-                                        field.value
-                                          ? field.value.toDate()
-                                          : null
-                                      }
-                                      cleanable
-                                    />
-                                  )}
-                                /> */}
 
                                 {errors.work?.[index]?.dateRange?.endDate && (
                                   <p style={{ color: 'red' }}>
@@ -1129,12 +1050,6 @@ const CreateResumes = () => {
         <button type="submit" className="border-2 p-3 my-5">
           Submit
         </button>
-        {/* <button
-          className="border-2 border-yellow-400 mx-5 p-3"
-          onClick={publishProfile}
-        >
-          Publish profile
-        </button> */}
       </form>
     </div>
   );

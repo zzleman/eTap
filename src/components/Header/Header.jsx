@@ -1,44 +1,44 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import {
-  Drawer,
-  RadioGroup,
-  Radio,
-  ButtonToolbar,
-  Button,
-  IconButton,
-  Placeholder,
-} from 'rsuite';
+import { Drawer, Button, Placeholder } from 'rsuite';
 import MenuIcon from '@mui/icons-material/Menu';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faChevronDown,
-  faMagnifyingGlass,
-} from '@fortawesome/free-solid-svg-icons';
 import etapLogo from '../../assets/icon/etap-logo.png';
 import Navbar from './Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { logOut } from '../../redux/authSlice';
-import { useEffect } from 'react';
-import { Dropdown } from 'rsuite';
 import { db } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { toast } from 'react-toastify';
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [size, setSize] = useState('calc(100%)');
-  const [open, setOpen] = useState(false);
-  const [placement, setPlacement] = useState('right');
-
-  const handleToggle = value => {
-    setOpen(!open);
-  };
+  const [isWorker, setIsWorker] = useState(null);
 
   const currentUser = useSelector(state => state.auth.currentUser);
-  const isWorker = currentUser?.isWorker;
+
+  if (currentUser && isWorker === null) {
+    const fetchUserData = async () => {
+      try {
+        const userRef = doc(db, 'Users', currentUser.uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          setIsWorker(userData.isWorker);
+        } else {
+          toast.error('User data not found!', { position: 'bottom-center' });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        toast.error('Error fetching user data!', { position: 'bottom-center' });
+      }
+    };
+
+    fetchUserData();
+  }
 
   const handleProfileClick = async () => {
     if (currentUser) {
@@ -68,9 +68,17 @@ const Header = () => {
     dispatch(logOut());
   };
 
+  const [size, setSize] = useState('calc(100%)');
+  const [open, setOpen] = useState(false);
+  const [placement, setPlacement] = useState('right');
+
+  const handleToggle = () => {
+    setOpen(!open);
+  };
+
   return (
     <div className="bg-[#563D7C] px-10 lg:px-36 flex flex-col gap-7 py-5">
-      <div className="pre-header  flex items-center text-white justify-between text-xs">
+      <div className="pre-header flex items-center text-white justify-between text-xs">
         <div className="left flex items-center gap-3">
           <Link to="/">
             <img
@@ -90,6 +98,7 @@ const Header = () => {
                 Профиль
               </Link>
             </li>
+
             {isWorker === false && (
               <Link
                 className="text-white hover:text-neutral-400"
@@ -107,6 +116,7 @@ const Header = () => {
             </Link>
             <li>Избранное</li>
           </ul>
+
           <div className="lg:hidden bg-red-600 ">
             <MenuIcon size="xs" onClick={handleToggle} />
             <Drawer
@@ -129,6 +139,7 @@ const Header = () => {
               </Drawer.Body>
             </Drawer>
           </div>
+
           <div className="hidden lg:flex gap-5">
             <button
               onClick={handleLogout}
@@ -140,7 +151,7 @@ const Header = () => {
           </div>
         </div>
       </div>
-      {location.pathname != '/' && <Navbar />}
+      {location.pathname !== '/' && <Navbar />}
     </div>
   );
 };

@@ -31,7 +31,6 @@ const Company = () => {
   } = useForm({
     resolver: zodResolver(schema),
   });
-  console.log('Form Errors:', errors);
 
   const currentUser = useSelector(selectCurrentUser);
   const userId = currentUser?.uid;
@@ -46,6 +45,37 @@ const Company = () => {
   const addProfilePic = () => {
     setProfilePic(urlPath);
     setValue('companyImg', urlPath);
+  };
+
+  const onSubmit = async data => {
+    if (!userId) {
+      toast.error('User ID not found. Please log in again.');
+      return;
+    }
+
+    try {
+      const userRef = doc(db, 'Users', userId);
+      const userSnapshot = await getDoc(userRef);
+
+      if (userSnapshot.exists()) {
+        await updateDoc(userRef, {
+          company: {
+            name: data.name,
+            email: data.email,
+            location: data.location,
+            companyImg: data.companyImg,
+            description: data.description,
+          },
+        });
+
+        toast.success('Company information updated successfully!');
+      } else {
+        toast.error('User document does not exist.');
+      }
+    } catch (error) {
+      console.error('Error updating company information:', error);
+      toast.error('Failed to update company information. Please try again.');
+    }
   };
 
   const fetchCompany = async () => {
@@ -73,56 +103,6 @@ const Company = () => {
       }
     } catch (error) {
       console.error('Error fetching company:', error);
-    }
-  };
-
-  const onSubmit = async data => {
-    console.log('Data being submitted:', data);
-
-    if (!userId) {
-      toast.error('User not authenticated!', { position: 'top-center' });
-      return;
-    }
-
-    try {
-      const userRef = doc(db, 'Users', userId);
-
-      const userSnapshot = await getDoc(userRef);
-
-      if (userSnapshot.exists()) {
-        console.log('User document found:', userSnapshot.data());
-
-        const existingData = userSnapshot.data();
-        const existingResumes = existingData.resumes || {};
-
-        const vacancyId = data.vacancyId || Date.now().toString();
-        const updatedResume = {
-          vacancyId: vacancyId,
-          ...removeUndefinedFields(data),
-          updatedAt: new Date().toISOString(),
-        };
-
-        const updatedResumes = {
-          ...existingResumes,
-          [vacancyId]: updatedResume,
-        };
-
-        await updateDoc(userRef, { resumes: updatedResumes });
-
-        toast.success('Resume updated successfully!', {
-          position: 'top-center',
-        });
-
-        reset();
-      } else {
-        console.log('User document does not exist.');
-        toast.error('User document does not exist!', {
-          position: 'top-center',
-        });
-      }
-    } catch (error) {
-      console.error('Error updating resume information:', error);
-      toast.error('Something went wrong!', { position: 'top-center' });
     }
   };
 
