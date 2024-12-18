@@ -55,16 +55,18 @@ const VacancyList = () => {
           vacancies.map(vacancy => (
             <div
               key={vacancy.id}
-              className="item flex flex-col gap-4 p-5 border  even:border-r-0 even:border-l-0"
+              className="item flex flex-col gap-4 p-5 border even:border-r-0 even:border-l-0"
             >
-              <h3 className="font-bold">{vacancy.title}</h3>
+              <h5 className="font-bold">{vacancy.title}</h5>
               <p className="w-[104px] h-10 bg-[#FFEBA8] font-bold text-sm flex items-center justify-center rounded-sm">
                 {vacancy.salary} AZN
               </p>
-              <div className="flex text-xs gap-4 text-neutral-400">
-                <h5 className="text-black font-bold">{vacancy.companyName}</h5>
-                <p>{vacancy.location}</p>
-                <p>{getTimeAgo(vacancy.createdAt)}</p>{' '}
+              <div className="flex items-center text-xs gap-4 text-neutral-400">
+                <p className="text-black font-bold">{vacancy.companyName}</p>
+                <div>
+                  <p>{vacancy.location}</p>
+                </div>
+                <p>{getTimeAgo(vacancy.createdAt)}</p>
               </div>
             </div>
           ))}

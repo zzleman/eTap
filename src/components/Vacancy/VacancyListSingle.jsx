@@ -9,7 +9,7 @@ const VacancyListSingle = ({
   salary,
   title,
   companyName,
-  companyLogo,
+  companyImg,
   location,
   createdAt,
   jobDescription,
@@ -110,7 +110,7 @@ const VacancyListSingle = ({
         />
       </div>
       <div className="right w-20 mr-9">
-        <img className="h-16 w-36" src={companyLogo} alt="" />
+        <img className="h-16 w-36" src={companyImg} alt="" />
       </div>
     </div>
   );

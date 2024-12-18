@@ -75,6 +75,10 @@ const CreateVacancy = () => {
       await addDoc(collection(db, 'vacancies'), {
         ...data,
         companyName: companyData.name,
+        location: companyData.location,
+        email: companyData.email,
+        description: companyData.description,
+        companyImg: companyData.companyImg,
         companyId: userId,
         createdAt: new Date(),
       });

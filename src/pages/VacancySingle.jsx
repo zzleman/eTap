@@ -121,7 +121,7 @@ const VacancySingle = () => {
                   <p>
                     Обновлено:{' '}
                     {new Date(
-                      productData.updatedAt?.toDate()
+                      productData.createdAt?.toDate()
                     ).toLocaleDateString()}
                   </p>
                 </div>
@@ -167,7 +167,7 @@ const VacancySingle = () => {
                 <div
                   className="job-description "
                   dangerouslySetInnerHTML={{
-                    __html: productData.companyDescription,
+                    __html: productData.description,
                   }}
                 />
               </div>
@@ -178,7 +178,7 @@ const VacancySingle = () => {
               <div className="middle flex gap-8 items-center my-7">
                 <img
                   className="h-14 w-14"
-                  src={productData.companyLogo || 'default-logo-url'}
+                  src={productData.companyImg || 'default-logo-url'}
                   alt="Company Logo"
                 />
                 <div>
@@ -222,7 +222,7 @@ const VacancySingle = () => {
         </div>
       </div>
 
-      <div className="related-vacancies flex">
+      <div className="related-vacancies ">
         <p className="bg-yellow-100 h-10 flex items-center px-5 text-sm font-bold border-b">
           Похожие вакансии
         </p>

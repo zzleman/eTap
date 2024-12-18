@@ -10,7 +10,7 @@ const Footer = () => {
           <p className="my-2">Слоган будет размещен здесь!</p>
         </div>
         <div>
-          <h3 className="font-bold mb-4">Меню</h3>
+          <h4 className="font-bold mb-4">Меню</h4>
           <ul className="flex flex-col gap-4">
             <li>Обратная связь</li>
             <li>Мои заказы</li>
@@ -19,7 +19,7 @@ const Footer = () => {
           </ul>
         </div>
         <div>
-          <h3 className="font-bold mb-4">Контакты</h3>
+          <h4 className="font-bold mb-4">Контакты</h4>
           <ul className="flex flex-col gap-4">
             <li>Обратная связь</li>
             <li>Мои заказы</li>
@@ -28,7 +28,7 @@ const Footer = () => {
           </ul>
         </div>
         <div>
-          <h3 className="font-bold mb-4">О нас</h3>
+          <h4 className="font-bold mb-4">О нас</h4>
           <ul className="flex flex-col gap-4">
             <li>Обратная связь</li>
             <li>Мои заказы</li>

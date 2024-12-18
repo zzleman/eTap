@@ -47,28 +47,5 @@ export const schema = z.object({
   jobDescription: z
     .string()
     .min(10, { message: 'Job description must be at least 10 characters' })
-    .max(1000, { message: 'Job description must not exceed 1000 characters' }),
-  companyName: z
-    .string()
-    .min(2, { message: 'Company name must be at least 2 characters' })
-    .max(100, { message: 'Company name must not exceed 100 characters' }),
-
-  location: z
-    .string()
-    .min(2, { message: 'Location must be at least 2 characters' })
-    .max(100, { message: 'Location must not exceed 100 characters' }),
-  companyLogo: z
-    .string()
-    .url({ message: 'Please enter a valid URL' })
-    .optional()
-    .refine(
-      value => (value ? /\.(jpeg|jpg|gif|png|webp)$/.test(value) : true),
-      {
-        message: 'Please provide a valid image URL',
-      }
-    ),
-
-  companyDescription: z
-    .string()
-    .min(10, { message: 'Company description must be at least 10 characters' }),
+    .max(2000, { message: 'Job description must not exceed 1000 characters' }),
 });

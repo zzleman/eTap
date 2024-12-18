@@ -9,9 +9,11 @@ const Card = props => {
     >
       <h3 className="font-bold text-lg">{title}</h3>
       <div className="flex gap-3">
-        <p className="border w-14 h-6 text-xs flex justify-center items-center rounded-2xl">
-          {badge1}
-        </p>
+        <div>
+          <p className="border w-14 h-6 text-xs flex justify-center items-center rounded-2xl">
+            {badge1}
+          </p>
+        </div>
         <p className="border w-24 h-6 text-xs flex justify-center items-center rounded-2xl">
           {badge2}
         </p>

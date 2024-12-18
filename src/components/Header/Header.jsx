@@ -38,6 +38,7 @@ const Header = () => {
   };
 
   const currentUser = useSelector(state => state.auth.currentUser);
+  const isWorker = currentUser?.isWorker;
 
   const handleProfileClick = async () => {
     if (currentUser) {
@@ -89,6 +90,15 @@ const Header = () => {
                 Профиль
               </Link>
             </li>
+            {isWorker === false && (
+              <Link
+                className="text-white hover:text-neutral-400"
+                to="/createVacancy"
+              >
+                Create a Vacancy
+              </Link>
+            )}
+
             <Link to="/vacancies" className="text-white hover:text-neutral-400">
               Вакансии
             </Link>
