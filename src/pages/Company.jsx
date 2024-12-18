@@ -86,7 +86,6 @@ const Company = () => {
 
     try {
       const userRef = doc(db, 'Users', userId);
-      console.log('Firestore document reference:', userRef);
 
       const userSnapshot = await getDoc(userRef);
 
@@ -94,30 +93,27 @@ const Company = () => {
         console.log('User document found:', userSnapshot.data());
 
         const existingData = userSnapshot.data();
-        const existingResumes = existingData.resumes || {}; // Fetch existing resumes
+        const existingResumes = existingData.resumes || {};
 
-        // Create or update the specific resume
         const vacancyId = data.vacancyId || Date.now().toString();
         const updatedResume = {
           vacancyId: vacancyId,
-          ...removeUndefinedFields(data), // Remove undefined fields if needed
+          ...removeUndefinedFields(data),
           updatedAt: new Date().toISOString(),
         };
 
-        // Update resumes object
         const updatedResumes = {
           ...existingResumes,
-          [vacancyId]: updatedResume, // Update or add specific resume
+          [vacancyId]: updatedResume,
         };
 
-        // Write back the updated resumes object
         await updateDoc(userRef, { resumes: updatedResumes });
 
         toast.success('Resume updated successfully!', {
           position: 'top-center',
         });
 
-        reset(); // Reset the form after submission
+        reset();
       } else {
         console.log('User document does not exist.');
         toast.error('User document does not exist!', {

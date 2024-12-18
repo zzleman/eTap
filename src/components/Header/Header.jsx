@@ -51,7 +51,7 @@ const Header = () => {
           if (userData.isWorker) {
             navigate('/createResumes');
           } else {
-            navigate('/createVacancy');
+            navigate('/companyDetails');
           }
         } else {
           toast.error('User data not found!', { position: 'bottom-center' });
