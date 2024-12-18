@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import VacancyListSingle from '../components/Vacancy/VacancyListSingle';
 import { useLocation } from 'react-router-dom';
 import Loading from '../components/Loading/Loading';
+import NoData from './NoData';
 
 const Vacancies = () => {
   const [vacancies, setVacancies] = useState([]);
@@ -94,7 +95,7 @@ const Vacancies = () => {
             />
           ))
         ) : (
-          <p>Нет вакансий для выбранных фильтров.</p>
+          <NoData />
         )}
       </div>
     </div>

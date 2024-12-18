@@ -47,5 +47,5 @@ export const schema = z.object({
   jobDescription: z
     .string()
     .min(10, { message: 'Job description must be at least 10 characters' })
-    .max(2000, { message: 'Job description must not exceed 1000 characters' }),
+    .max(3000, { message: 'Job description must not exceed 3000 characters' }),
 });

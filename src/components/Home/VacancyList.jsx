@@ -52,10 +52,10 @@ const VacancyList = () => {
       </div>
       <div className="bottom grid grid-cols-3 px-32">
         {vacancies &&
-          vacancies.map(vacancy => (
+          vacancies.slice(0, 6).map(vacancy => (
             <div
               key={vacancy.id}
-              className="item flex flex-col gap-4 p-5 border even:border-r-0 even:border-l-0"
+              className="item flex flex-col gap-4 p-5 border"
             >
               <h5 className="font-bold">{vacancy.title}</h5>
               <p className="w-[104px] h-10 bg-[#FFEBA8] font-bold text-sm flex items-center justify-center rounded-sm">
