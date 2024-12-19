@@ -27,7 +27,6 @@ const Navbar = () => {
     setOpen(!open);
   };
 
-  // Update the query parameters when a filter or search input changes
   const updateQueryParams = params => {
     const searchParams = new URLSearchParams();
 
@@ -37,15 +36,19 @@ const Navbar = () => {
       }
     });
 
-    const updatedPath = `${currentPath}?${searchParams.toString()}`;
-    navigate(updatedPath);
+    if (currentPath == '/') {
+      const updatedPath = `/vacancies?${searchParams.toString()}`;
+      navigate(updatedPath);
+    } else {
+      const updatedPath = `${currentPath}?${searchParams.toString()}`;
+      navigate(updatedPath);
+    }
   };
 
-  // Handle changes to search input
   const handleSearchChange = event => {
     setSearchQuery(event.target.value);
     updateQueryParams({
-      query: event.target.value, // Add the search query parameter
+      query: event.target.value,
       category: catId,
       city: cityName,
       salary: salary,
@@ -63,7 +66,7 @@ const Navbar = () => {
       salary: salary,
       experience: experience,
       jobType: jobType,
-      query: searchQuery, // Include search query in the URL
+      query: searchQuery,
     });
   };
 
@@ -76,7 +79,7 @@ const Navbar = () => {
       salary: salary,
       experience: experience,
       jobType: jobType,
-      query: searchQuery, // Include search query in the URL
+      query: searchQuery,
     });
   };
 
@@ -89,7 +92,7 @@ const Navbar = () => {
       salary: selectedSalary,
       experience: experience,
       jobType: jobType,
-      query: searchQuery, // Include search query in the URL
+      query: searchQuery,
     });
   };
 
@@ -102,7 +105,7 @@ const Navbar = () => {
       salary: salary,
       experience: selectedExperience,
       jobType: jobType,
-      query: searchQuery, // Include search query in the URL
+      query: searchQuery,
     });
   };
 
@@ -115,11 +118,10 @@ const Navbar = () => {
       salary: salary,
       experience: experience,
       jobType: selectedJobType,
-      query: searchQuery, // Include search query in the URL
+      query: searchQuery,
     });
   };
 
-  // Fetch categories on component mount
   useEffect(() => {
     const getCategories = async () => {
       try {
@@ -194,7 +196,7 @@ const Navbar = () => {
             type="text"
             placeholder="Найти"
             value={searchQuery}
-            onChange={handleSearchChange} // Handle input change
+            onChange={handleSearchChange}
           />
         </div>
 
