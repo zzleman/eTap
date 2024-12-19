@@ -5,6 +5,8 @@ import VacancyListSingle from '../components/Vacancy/VacancyListSingle';
 import { useLocation } from 'react-router-dom';
 import Loading from '../components/Loading/Loading';
 import NoData from './NoData';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '../redux/authSlice';
 
 const Vacancies = () => {
   const [vacancies, setVacancies] = useState([]);
@@ -15,13 +17,15 @@ const Vacancies = () => {
     const params = new URLSearchParams(search);
     return params.get(queryName);
   };
-
+  const currentUser = useSelector(selectCurrentUser);
+  const userId = currentUser?.uid;
   const categoryId = getQueryParams('category');
   const cityName = getQueryParams('city');
   const salaryQuantity = getQueryParams('salary');
   const experienceTotal = getQueryParams('experience');
   const jobType = getQueryParams('jobType');
-  const searchQuery = getQueryParams('query'); // Get search query from URL
+  const searchQuery = getQueryParams('query');
+  const [userFavorites, setUserFavorites] = useState([]);
 
   const getVacancies = async () => {
     setLoading(true);
@@ -34,7 +38,6 @@ const Vacancies = () => {
 
       let filteredVacancies = allVacancies;
 
-      // Apply filters based on query params
       if (categoryId) {
         filteredVacancies = filteredVacancies.filter(
           vacancy =>
@@ -90,6 +93,31 @@ const Vacancies = () => {
     }
   };
 
+  const handleToggleFavorite = async (vacancyId, isFavorite) => {
+    if (!user) {
+      console.log('User must be logged in to add to favorites.');
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, 'Users', userId);
+
+      if (isFavorite) {
+        await updateDoc(userDocRef, {
+          favorites: arrayUnion(vacancyId),
+        });
+        setUserFavorites(prev => [...prev, vacancyId]);
+      } else {
+        await updateDoc(userDocRef, {
+          favorites: arrayRemove(vacancyId),
+        });
+        setUserFavorites(prev => prev.filter(id => id !== vacancyId));
+      }
+    } catch (error) {
+      console.error('Error updating favorites in Firestore:', error);
+    }
+  };
+
   useEffect(() => {
     getVacancies();
   }, [search]);
@@ -105,9 +133,10 @@ const Vacancies = () => {
         {vacancies.length > 0 ? (
           vacancies.map(vacancy => (
             <VacancyListSingle
-              categoryId={categoryId}
-              {...vacancy}
               key={vacancy.id}
+              {...vacancy}
+              userFavorites={userFavorites}
+              onToggleFavorite={handleToggleFavorite}
             />
           ))
         ) : (

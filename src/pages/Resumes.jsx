@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import verifiedIcon from '../assets/icon/verified.png';
-import dislikeIcon from '../assets/icon/dislike.png';
-import shareIcon from '../assets/icon/share.png';
-import starIcon from '../assets/icon/star.png';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
+import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -110,19 +110,19 @@ const Resumes = () => {
                   {resume.salaryRange} AZN
                 </span>
                 <div className="flex gap-3 mb-5 text-green-500">
-                  <img src={verifiedIcon} alt="" />
+                  <VerifiedUserOutlinedIcon style={{ fontSize: 'large' }} />
                   <p>Проверенно</p>
                 </div>
-                <div className="flex gap-3">
-                  <img src={dislikeIcon} alt="" />
+                <div className="flex gap-3 text-neutral-500">
+                  <ThumbDownOutlinedIcon style={{ fontSize: 'large' }} />
                   <p>Пожаловаться</p>
                 </div>
-                <div className="flex gap-3">
-                  <img src={shareIcon} alt="" />
+                <div className="flex gap-3 text-neutral-500">
+                  <ShareOutlinedIcon style={{ fontSize: 'large' }} />
                   <p>Поделиться</p>
                 </div>
-                <div className="flex gap-3">
-                  <img src={starIcon} alt="" />
+                <div className="flex gap-3 text-neutral-500">
+                  <StarOutlineOutlinedIcon style={{ fontSize: 'large' }} />
                   <p>В избранное</p>
                 </div>
               </div>

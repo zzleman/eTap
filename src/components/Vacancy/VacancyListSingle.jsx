@@ -2,7 +2,9 @@ import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
+import StarFilledIcon from '@mui/icons-material/Star';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
 
 const VacancyListSingle = ({
   id,
@@ -13,7 +15,10 @@ const VacancyListSingle = ({
   location,
   createdAt,
   jobDescription,
+  userFavorites,
+  onToggleFavorite,
 }) => {
+  const [isFavorite, setIsFavorite] = useState(userFavorites.includes(id));
   const getTimeAgo = timestamp => {
     if (!timestamp) {
       return 'Unknown time';
@@ -46,6 +51,13 @@ const VacancyListSingle = ({
       ? navigate(`/vacancies/${categoryId}/${id}`)
       : navigate(`/vacancies/all/${id}`);
   };
+
+  const addToFavorite = async () => {
+    setIsFavorite(prev => !prev);
+
+    onToggleFavorite(id, !isFavorite);
+  };
+
   return (
     <div
       key={id}
@@ -74,12 +86,19 @@ const VacancyListSingle = ({
             />
             <p>Поделиться</p>
           </div>
-          <div className="flex gap-3">
-            <StarOutlineOutlinedIcon
-              className="text-neutral-400"
-              style={{ fontSize: 'large' }}
-            />
-            <p>В избранное</p>
+          <div className="flex gap-3 cursor-pointer" onClick={addToFavorite}>
+            {isFavorite ? (
+              <StarFilledIcon
+                className="text-yellow-500"
+                style={{ fontSize: 'large' }}
+              />
+            ) : (
+              <StarOutlineOutlinedIcon
+                className="text-neutral-400"
+                style={{ fontSize: 'large' }}
+              />
+            )}
+            <p>{isFavorite ? 'Убрать из избранного' : 'В избранное'}</p>
           </div>
         </div>
       </div>
