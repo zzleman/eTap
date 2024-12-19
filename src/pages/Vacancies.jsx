@@ -21,6 +21,7 @@ const Vacancies = () => {
   const salaryQuantity = getQueryParams('salary');
   const experienceTotal = getQueryParams('experience');
   const jobType = getQueryParams('jobType');
+  const searchQuery = getQueryParams('query'); // Get search query from URL
 
   const getVacancies = async () => {
     setLoading(true);
@@ -33,6 +34,7 @@ const Vacancies = () => {
 
       let filteredVacancies = allVacancies;
 
+      // Apply filters based on query params
       if (categoryId) {
         filteredVacancies = filteredVacancies.filter(
           vacancy =>
@@ -40,11 +42,15 @@ const Vacancies = () => {
             vacancy.category.toLowerCase() === categoryId.toLowerCase()
         );
       }
+
       if (cityName) {
         filteredVacancies = filteredVacancies.filter(
-          vacancy => vacancy.location.toLowerCase() === cityName.toLowerCase()
+          vacancy =>
+            vacancy.location &&
+            vacancy.location.toLowerCase() === cityName.toLowerCase()
         );
       }
+
       if (salaryQuantity) {
         const [minSalary, maxSalary] = salaryQuantity.split('-').map(Number);
         filteredVacancies = filteredVacancies.filter(vacancy => {
@@ -55,6 +61,7 @@ const Vacancies = () => {
           );
         });
       }
+
       if (experienceTotal) {
         filteredVacancies = filteredVacancies.filter(
           vacancy => vacancy.experience === experienceTotal
@@ -65,6 +72,14 @@ const Vacancies = () => {
         filteredVacancies = filteredVacancies.filter(
           vacancy => vacancy.jobType === jobType
         );
+      }
+
+      if (searchQuery) {
+        filteredVacancies = filteredVacancies.filter(vacancy => {
+          return vacancy.title
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase());
+        });
       }
 
       setVacancies(filteredVacancies);
@@ -82,6 +97,7 @@ const Vacancies = () => {
   if (loading) {
     return <Loading loading={loading} />;
   }
+
   return (
     <div className="px-36 py-5">
       <h1 className="text-2xl font-bold py-5">Вакансии по фильтрам</h1>

@@ -17,6 +17,7 @@ const Navbar = () => {
   const [salary, setSalary] = useState('');
   const [experience, setExperience] = useState('');
   const [jobType, setJobType] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const navigate = useNavigate();
   const loc = useLocation();
@@ -26,19 +27,7 @@ const Navbar = () => {
     setOpen(!open);
   };
 
-  const getCategories = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'JobCategories'));
-      const categoriesData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
+  // Update the query parameters when a filter or search input changes
   const updateQueryParams = params => {
     const searchParams = new URLSearchParams();
 
@@ -48,15 +37,21 @@ const Navbar = () => {
       }
     });
 
-    const basePath = currentPath;
+    const updatedPath = `${currentPath}?${searchParams.toString()}`;
+    navigate(updatedPath);
+  };
 
-    if (currentPath == '/') {
-      const updatedPath = `/vacancies?${searchParams.toString()}`;
-      navigate(updatedPath);
-    } else {
-      const updatedPath = `${basePath}?${searchParams.toString()}`;
-      navigate(updatedPath);
-    }
+  // Handle changes to search input
+  const handleSearchChange = event => {
+    setSearchQuery(event.target.value);
+    updateQueryParams({
+      query: event.target.value, // Add the search query parameter
+      category: catId,
+      city: cityName,
+      salary: salary,
+      experience: experience,
+      jobType: jobType,
+    });
   };
 
   const handleCategoryChange = event => {
@@ -68,6 +63,7 @@ const Navbar = () => {
       salary: salary,
       experience: experience,
       jobType: jobType,
+      query: searchQuery, // Include search query in the URL
     });
   };
 
@@ -80,6 +76,7 @@ const Navbar = () => {
       salary: salary,
       experience: experience,
       jobType: jobType,
+      query: searchQuery, // Include search query in the URL
     });
   };
 
@@ -92,6 +89,7 @@ const Navbar = () => {
       salary: selectedSalary,
       experience: experience,
       jobType: jobType,
+      query: searchQuery, // Include search query in the URL
     });
   };
 
@@ -104,6 +102,7 @@ const Navbar = () => {
       salary: salary,
       experience: selectedExperience,
       jobType: jobType,
+      query: searchQuery, // Include search query in the URL
     });
   };
 
@@ -116,10 +115,25 @@ const Navbar = () => {
       salary: salary,
       experience: experience,
       jobType: selectedJobType,
+      query: searchQuery, // Include search query in the URL
     });
   };
 
+  // Fetch categories on component mount
   useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'JobCategories'));
+        const categoriesData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
     getCategories();
   }, []);
 
@@ -179,6 +193,8 @@ const Navbar = () => {
             className="w-40 h-10 bg-transparent border px-11 text-white"
             type="text"
             placeholder="Найти"
+            value={searchQuery}
+            onChange={handleSearchChange} // Handle input change
           />
         </div>
 

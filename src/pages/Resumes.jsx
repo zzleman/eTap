@@ -1,31 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import verifiedIcon from '../assets/icon/verified.png';
 import dislikeIcon from '../assets/icon/dislike.png';
 import shareIcon from '../assets/icon/share.png';
 import starIcon from '../assets/icon/star.png';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import { useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Loading from '../components/Loading/Loading';
+import NoData from './NoData';
 
 const Resumes = () => {
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
   const { search } = useLocation();
+  const navigate = useNavigate();
 
   const getQueryParams = queryName => {
     const params = new URLSearchParams(search);
     return params.get(queryName);
   };
 
-  const navigate = useNavigate();
-
   const categoryId = getQueryParams('category');
   const cityName = getQueryParams('city');
   const salaryQuantity = getQueryParams('salary');
   const experienceTotal = getQueryParams('experience');
   const jobType = getQueryParams('jobType');
+  const searchQuery = getQueryParams('query');
 
   const getResumes = async () => {
     setLoading(true);
@@ -47,24 +47,31 @@ const Resumes = () => {
       }
       if (cityName) {
         filteredResumes = filteredResumes.filter(
-          resume => resume.city.toLowerCase() === cityName.toLowerCase()
+          resume =>
+            resume.city && resume.city.toLowerCase() === cityName.toLowerCase()
         );
       }
       if (salaryQuantity) {
         filteredResumes = filteredResumes.filter(
           resume =>
+            resume.salaryRange &&
             resume.salaryRange.toLowerCase() === salaryQuantity.toLowerCase()
         );
       }
       if (experienceTotal) {
         filteredResumes = filteredResumes.filter(
-          resume => resume.experience === experienceTotal
+          resume => resume.experience && resume.experience === experienceTotal
+        );
+      }
+      if (jobType) {
+        filteredResumes = filteredResumes.filter(
+          resume => resume.jobType && resume.jobType === jobType
         );
       }
 
-      if (jobType) {
-        filteredResumes = filteredResumes.filter(
-          resume => resume.jobType === jobType
+      if (searchQuery) {
+        filteredResumes = filteredResumes.filter(resume =>
+          resume.position.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
 
@@ -76,13 +83,8 @@ const Resumes = () => {
     }
   };
 
-  const { catId } = useParams();
-
   const handleNavigate = id => {
-    console.log('Navigating to ID:', id);
-    catId
-      ? navigate(`/resumes/${categoryId}/${id}`)
-      : navigate(`/resumes/${id}`);
+    navigate(`/resumes/${id}`);
   };
 
   useEffect(() => {
@@ -92,11 +94,12 @@ const Resumes = () => {
   if (loading) {
     return <Loading loading={loading} />;
   }
+
   return (
     <div className="px-36 py-5">
       <h1 className="text-2xl my-5">Резюме пользователя</h1>
       <div>
-        {resumes &&
+        {resumes.length > 0 ? (
           resumes.map(resume => (
             <div
               key={resume.id}
@@ -125,7 +128,7 @@ const Resumes = () => {
               </div>
               <div
                 className="middle flex flex-col gap-3 w-[385px] cursor-pointer"
-                onClick={() => handleNavigate(resume.id)} // id is not defined here
+                onClick={() => handleNavigate(resume.id)}
               >
                 <div className="middle-top flex gap-3">
                   <h3 className="font-bold text-base capitalize">
@@ -189,7 +192,10 @@ const Resumes = () => {
                 </p>
               </div>
             </div>
-          ))}
+          ))
+        ) : (
+          <NoData />
+        )}
       </div>
     </div>
   );

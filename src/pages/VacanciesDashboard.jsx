@@ -50,7 +50,6 @@ const VacanciesDashboard = () => {
       setVacancies(prevVacancies =>
         prevVacancies.filter(vacancy => vacancy.id !== vacancyId)
       );
-      console.log(`Vacancy with ID ${vacancyId} deleted successfully.`);
     } catch (error) {
       console.error('Error deleting vacancy:', error);
     }
