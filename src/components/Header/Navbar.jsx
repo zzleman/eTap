@@ -140,12 +140,12 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="relative flex flex-col lg:flex-row gap-7 lg:items-center text-white text-sm">
+    <div className="flex flex-col gap-5 my-5 lg:my-0">
+      <div className="relative grid grid-cols-2 lg:flex  gap-7 lg:items-center text-white text-sm">
         <select
           name="category"
           id="category"
-          className="w-[350px] h-10 text-neutral-400 px-5"
+          className="lg:w-[350px] h-10 text-neutral-400 px-5"
           value={catId}
           onChange={handleCategoryChange}
         >
@@ -160,7 +160,7 @@ const Navbar = () => {
         <select
           name="city"
           id="city"
-          className="w-40 h-10 text-neutral-400 px-5"
+          className="lg:w-40 h-10 text-neutral-400 px-5"
           value={cityName}
           onChange={handleCityChange}
         >
@@ -174,7 +174,7 @@ const Navbar = () => {
         <select
           name="salary"
           id="salary"
-          className="w-40 h-10 text-neutral-400 px-5"
+          className="lg:w-40 h-10 text-neutral-400 px-5"
           value={salary}
           onChange={handleSalaryChange}
         >

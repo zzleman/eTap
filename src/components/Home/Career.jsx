@@ -7,9 +7,9 @@ import card4 from '../../assets/img/card4.png';
 
 const Career = () => {
   return (
-    <div className="px-36 flex flex-col my-10">
+    <div className="px-5 lg:px-36 flex flex-col my-10">
       <h3 className="mb-10 text-xl font-bold">Всё о карьере и HR</h3>
-      <div className="flex justify-between">
+      <div className="grid gap-3 lg:gap-0 grid-cols-2 md:grid-cols-4 justify-between">
         <Card
           bgImg={card1}
           title="Как уйти из офиса на свободу"

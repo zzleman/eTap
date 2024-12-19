@@ -117,7 +117,7 @@ const Header = () => {
             <li>Избранное</li>
           </ul>
 
-          <div className="lg:hidden bg-red-600 ">
+          <div className="lg:hidden">
             <MenuIcon size="xs" onClick={handleToggle} />
             <Drawer
               size={size}
@@ -125,17 +125,46 @@ const Header = () => {
               open={open}
               onClose={handleToggle}
             >
-              <Drawer.Header>
-                <Drawer.Title>Drawer Title</Drawer.Title>
-                <Drawer.Actions>
-                  <Button onClick={handleToggle}>Cancel</Button>
-                  <Button onClick={handleToggle} appearance="primary">
-                    Confirm
-                  </Button>
-                </Drawer.Actions>
+              <Drawer.Header className="flex justify-end">
+                <img
+                  className="bg-[#563d7c] p-2 rounded-lg"
+                  src={etapLogo}
+                  alt=""
+                />
               </Drawer.Header>
-              <Drawer.Body>
-                <Placeholder.Paragraph rows={8} />
+              <Drawer.Body
+                className="flex flex-col gap-10 items-center my-5"
+                onClick={handleToggle}
+              >
+                <Link
+                  className="text-[#563D7C] hover:text-neutral-400 text-lg"
+                  onClick={handleProfileClick}
+                >
+                  Профиль
+                </Link>
+                {isWorker === false && (
+                  <Link
+                    className="text-[#563D7C] hover:text-neutral-400 text-lg"
+                    to="/createVacancy"
+                  >
+                    Create a Vacancy
+                  </Link>
+                )}
+                <Link
+                  to="/vacancies"
+                  className="text-[#563D7C] hover:text-neutral-400 text-lg"
+                >
+                  Вакансии
+                </Link>
+                <Link
+                  to="/resumes"
+                  className="text-[#563D7C] hover:text-neutral-400 text-lg"
+                >
+                  Резюме
+                </Link>
+                <Link className="text-[#563D7C] hover:text-neutral-400 text-lg">
+                  Избранное
+                </Link>
               </Drawer.Body>
             </Drawer>
           </div>

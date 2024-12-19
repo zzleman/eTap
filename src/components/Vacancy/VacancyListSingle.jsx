@@ -49,7 +49,7 @@ const VacancyListSingle = ({
   return (
     <div
       key={id}
-      className="vacancy-area flex w-10/12 justify-between border-b border-t py-5"
+      className="vacancy-area flex flex-col md:flex-row w-10/12 justify-between border-b border-t py-5"
     >
       <div className="left flex flex-col gap-2 w-40">
         <span className="w-28 h-10 bg-yellow-200 flex justify-center items-center">
@@ -59,7 +59,7 @@ const VacancyListSingle = ({
           <VerifiedUserOutlinedIcon style={{ fontSize: 'large' }} />
           <p>Проверенно</p>
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex md:flex-col gap-4 text-nowrap mb-3 md:mb-0">
           <div className="flex gap-3">
             <ThumbDownOutlinedIcon
               className="text-neutral-400"
@@ -88,7 +88,7 @@ const VacancyListSingle = ({
         onClick={() => handleNavigate(id)}
       >
         <div className="middle-top flex gap-3">
-          <h3 className="font-bold text-base text-nowrap">{title}</h3>
+          <h3 className="font-bold text-base md:text-nowrap">{title}</h3>
           <p className="bg-red-300 w-24 h-6 flex justify-center items-center ">
             Срочно
           </p>

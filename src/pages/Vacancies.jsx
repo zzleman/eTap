@@ -99,7 +99,7 @@ const Vacancies = () => {
   }
 
   return (
-    <div className="px-36 py-5">
+    <div className="px-5 lg:px-36 py-5">
       <h1 className="text-2xl font-bold py-5">Вакансии по фильтрам</h1>
       <div className="vacancies-container">
         {vacancies.length > 0 ? (

@@ -4,7 +4,7 @@ const Card = props => {
   const { title, badge1, badge2, date, bgImg } = props;
   return (
     <div
-      className="h-[330px] w-64 text-white px-5 flex flex-col gap-4 justify-end py-12 rounded-sm"
+      className="h-[330px] lg:w-64 bg-no-repeat text-white px-2 lg:px-5 flex flex-col gap-4 justify-end py-12 rounded-sm"
       style={{ backgroundImage: `url(${bgImg})` }}
     >
       <h3 className="font-bold text-lg">{title}</h3>

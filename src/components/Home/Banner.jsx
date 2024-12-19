@@ -8,27 +8,27 @@ import instagram from '../../assets/icon/instagram.png';
 
 const Banner = () => {
   return (
-    <div className="flex px-36 justify-between gap-6 my-20">
-      <div className="left bg-[#6C2AFE] flex h-56 relative w-9/12 text-white">
+    <div className="flex flex-col lg:flex-row lg:px-36 justify-between gap-6 my-20">
+      <div className="left bg-[#6C2AFE] flex lg:h-56 relative lg:w-9/12 text-white">
         <div className="left-text p-10 flex flex-col gap-4">
           <h1 className="text-4xl font-bold">Мобильное приложение</h1>
           <p className="text-sm font-extralight">
             Удобный месенджер, качественный поиск, быстрая подача объявлений
           </p>
-          <div className="flex gap-3 items-center">
-            <img className="h-14" src={appstore} alt="App Store" />
-            <img className="h-16" src={playstore} alt="Play Store" />
+          <div className="flex gap-3 items-center mt-14 md:mt-0 z-50">
+            <img className="h-10 md:h-14" src={appstore} alt="App Store" />
+            <img className="h-12 md:h-16" src={playstore} alt="Play Store" />
           </div>
         </div>
         <div className="left-img">
           <img
-            className="absolute h-[287px] top-[-39.5px] right-0"
+            className="hidden md:block absolute h-[287px] top-[-39.5px] right-0"
             src={bannerImg}
             alt=""
           />
         </div>
       </div>
-      <div className="right w-[265px] h-56 bg-[#F2F5F7]">
+      <div className="right lg:w-[265px] h-56 bg-[#F2F5F7]">
         <div
           className="right-top h-[74px] flex flex-col py-1 items-center"
           style={{

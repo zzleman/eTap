@@ -106,7 +106,7 @@ const CreateVacancy = () => {
   }
 
   return (
-    <div className="py-10 max-w-4xl mx-auto">
+    <div className="py-10 max-w-4xl mx-5 lg:mx-auto">
       <h1 className="text-2xl font-bold mb-5">Разместить вакансию</h1>
       <div className="company-info mb-5 p-5 border rounded-md flex justify-between">
         <div>
@@ -131,7 +131,7 @@ const CreateVacancy = () => {
       </div>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="job-info my-5">
-          <div className="grid grid-cols-12 w-12/12 gap-5">
+          <div className="grid grid-cols-12  mx-auto lg:mx-0 w-12/12 gap-5">
             <div className="form-group flex flex-col gap-2 col-span-12">
               <label className="font-bold" htmlFor="title">
                 Job Title
@@ -149,7 +149,7 @@ const CreateVacancy = () => {
               )}
             </div>
 
-            <div className="form-group flex flex-col gap-2 col-span-6">
+            <div className="form-group flex flex-col gap-2 col-span-12 md:col-span-6">
               <label className="font-bold" htmlFor="category">
                 Category
               </label>
@@ -172,7 +172,7 @@ const CreateVacancy = () => {
               )}
             </div>
 
-            <div className="form-group flex flex-col gap-2 col-span-6">
+            <div className="form-group flex flex-col gap-2  col-span-12 md:col-span-6">
               <label className="font-bold" htmlFor="salary">
                 Salary
               </label>
@@ -189,7 +189,7 @@ const CreateVacancy = () => {
               )}
             </div>
 
-            <div className="form-group flex flex-col gap-2 col-span-6">
+            <div className="form-group flex flex-col gap-2  col-span-12 md:col-span-6">
               <label className="font-bold" htmlFor="workShift">
                 Work Shift
               </label>
@@ -210,7 +210,7 @@ const CreateVacancy = () => {
               )}
             </div>
 
-            <div className="form-group flex flex-col gap-2 col-span-6">
+            <div className="form-group flex flex-col gap-2  col-span-12 md:col-span-6">
               <label className="font-bold" htmlFor="experience">
                 Experience
               </label>
@@ -232,7 +232,7 @@ const CreateVacancy = () => {
               )}
             </div>
 
-            <div className="form-group flex flex-col gap-2 col-span-6">
+            <div className="form-group flex flex-col gap-2  col-span-12 md:col-span-6">
               <label className="font-bold" htmlFor="education">
                 Education
               </label>
@@ -254,7 +254,7 @@ const CreateVacancy = () => {
               )}
             </div>
 
-            <div className="form-group flex flex-col gap-2 col-span-6">
+            <div className="form-group flex flex-col gap-2  col-span-12 md:col-span-6">
               <label className="font-bold" htmlFor="jobType">
                 Job Type
               </label>

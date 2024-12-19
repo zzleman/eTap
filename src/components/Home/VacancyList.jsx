@@ -43,14 +43,11 @@ const VacancyList = () => {
   }, []);
   return (
     <div className="flex flex-col gap-7">
-      <div className="top flex justify-between px-36">
+      <div className="top flex justify-between px-5 items-center lg:px-36">
         <h3 className="font-bold text-xl">Вакансии дня в Азербайджане</h3>
-        <p className="text-xs">
-          {vacancies.length} актуальные вакансии
-          <span className="pl-3 text-[#695389]">+ 22 сегодня</span>
-        </p>
+        <p className="text-xs">{vacancies.length} актуальные вакансии</p>
       </div>
-      <div className="bottom grid grid-cols-3 px-32">
+      <div className="bottom grid md:grid-cols-2 lg:grid-cols-3 px-5 lg:px-32">
         {vacancies &&
           vacancies.slice(0, 6).map(vacancy => (
             <div

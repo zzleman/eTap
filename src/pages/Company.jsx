@@ -123,7 +123,7 @@ const Company = () => {
   }
 
   return (
-    <div className="company-info px-36 my-10">
+    <div className="company-info px-10 xl:px-36 my-10">
       <h1 className="text-[#563D7C] font-bold mb-5 text-xl">
         Tell Us More About Your Company
       </h1>
@@ -131,7 +131,7 @@ const Company = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-12 gap-5"
       >
-        <div className="form-group flex flex-col gap-2 col-span-6">
+        <div className="form-group flex flex-col gap-2 col-span-12 md:col-span-6">
           <label className="font-bold" htmlFor="companyName">
             Company Name
           </label>
@@ -150,7 +150,7 @@ const Company = () => {
           )}
         </div>
 
-        <div className="form-group flex flex-col gap-2 col-span-6">
+        <div className="form-group flex flex-col gap-2 col-span-12 md:col-span-6">
           <label className="font-bold" htmlFor="companyEmail">
             Company Email
           </label>
@@ -168,7 +168,7 @@ const Company = () => {
             <p className="text-red-500 text-xs">{errors.email.message}</p>
           )}
         </div>
-        <div className="form-group col-span-6 flex flex-col gap-2">
+        <div className="form-group flex flex-col gap-2 col-span-12 md:col-span-6">
           <p className="font-bold">Company Logo</p>
           <div className="flex border items-center p-3 gap-5 w-4/4">
             <div className="profile-pic bg-[#eeeeee] size-28 rounded-md border flex items-center justify-center">
@@ -179,7 +179,7 @@ const Company = () => {
               )}
             </div>
             <div className="file-upload flex flex-col w-2/3">
-              <span className="text-xs text-neutral-400 text-nowrap">
+              <span className="text-xs text-neutral-400 lg:text-nowrap">
                 Enter your company or organization’s image URL.
               </span>
               <input
@@ -202,7 +202,7 @@ const Company = () => {
           </div>
         </div>
 
-        <div className="form-group flex flex-col gap-2 col-span-6">
+        <div className="form-group flex flex-col gap-2 col-span-12 md:col-span-6">
           <label className="font-bold" htmlFor="location">
             Location
           </label>
