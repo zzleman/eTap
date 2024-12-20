@@ -99,7 +99,7 @@ const Register = () => {
                       isWorker ? 'bg-white text-neutral-500' : ''
                     }`}
                   >
-                    <p>Worker</p>
+                    <p>Employee</p>
                   </div>
                   <div
                     onClick={() => handleRoleSelection('admin')}
@@ -107,7 +107,7 @@ const Register = () => {
                       !isWorker ? 'bg-white text-neutral-400' : ''
                     }`}
                   >
-                    <p>Admin</p>
+                    <p>Recruiter</p>
                   </div>
                 </div>
                 <input
