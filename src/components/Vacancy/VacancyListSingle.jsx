@@ -18,7 +18,10 @@ const VacancyListSingle = ({
   userFavorites,
   onToggleFavorite,
 }) => {
-  const [isFavorite, setIsFavorite] = useState(userFavorites.includes(id));
+  const [isFavorite, setIsFavorite] = useState(
+    (userFavorites || []).includes(id)
+  );
+
   const getTimeAgo = timestamp => {
     if (!timestamp) {
       return 'Unknown time';
