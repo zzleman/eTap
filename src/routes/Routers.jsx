@@ -5,6 +5,7 @@ import { auth } from '../firebase';
 import Company from '../pages/Company';
 import CreateResumes from '../pages/CreateResumes';
 import CreateVacancy from '../pages/CreateVacancy';
+import Favorites from '../pages/Favorites';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
@@ -94,6 +95,14 @@ const Routers = () => {
         element={
           <RequireAuth>
             <Company />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/favorites"
+        element={
+          <RequireAuth>
+            <Favorites />
           </RequireAuth>
         }
       />

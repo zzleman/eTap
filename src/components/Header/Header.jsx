@@ -102,7 +102,9 @@ const Header = () => {
             <Link to="/resumes" className="text-white hover:text-neutral-400">
               Резюме
             </Link>
-            <Link className="text-white hover:text-neutral-400">Избранное</Link>
+            <Link to="/favorites" className="text-white hover:text-neutral-400">
+              Избранное
+            </Link>
           </ul>
 
           <div className="lg:hidden">
