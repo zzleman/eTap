@@ -13,7 +13,7 @@ const TextEditor = ({ id, name, value, onChange, onBlur }) => {
 
   return (
     <Editor
-      apiKey="qzo12pe2kdjj9jn3wr7z0anxcymjyhkoy9sk2706t17c1v3c"
+      apiKey="nwldzu0d5d3x2i6e0oce85q2iravyfkd6kvy0yt5rfxht1bi"
       value={value}
       name={name}
       id={id}
