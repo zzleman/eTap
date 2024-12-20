@@ -290,15 +290,19 @@ const ResumeSingle = () => {
               </div>
             </div>
             <div className="flex w-2/3 items-center gap-3 px-3">
-              <a
-                href={productData.portfolio}
-                target="_blank"
-                className="text-neutral-500 border border-neutral-300 h-10 w-40 flex items-center justify-center gap-2
-            hover:bg-neutral-300 hover:text-black rounded-lg"
-              >
-                <SiteParsingIcon className="size-5" />
-                <span> check portfolio site</span>
-              </a>
+              {productData.portfolio ? (
+                <a
+                  href={productData.portfolio}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-neutral-500 border border-neutral-300 h-10 w-40 flex items-center justify-center gap-2 hover:bg-neutral-300 hover:text-black rounded-lg"
+                >
+                  <SiteParsingIcon className="size-5" />
+                  <span>Check portfolio site</span>
+                </a>
+              ) : (
+                <span>Portfolio link not available</span>
+              )}
             </div>
           </div>
         </div>

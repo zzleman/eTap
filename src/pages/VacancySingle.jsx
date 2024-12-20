@@ -5,6 +5,9 @@ import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
+import EmailIcon from '@rsuite/icons/Email';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -17,9 +20,14 @@ const VacancySingle = () => {
   const { id: productId } = useParams();
   const [productData, setProductData] = useState(null);
   const [categoryName, setCategoryName] = useState(null);
+  const [mail, setMail] = useState(false);
   const [vacancies, setVacancies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [relatedVacancies, setRelatedVacancies] = useState([]);
+
+  const showMail = () => {
+    setMail(!mail);
+  };
 
   const fetchAllVacancies = async () => {
     setLoading(true);
@@ -96,6 +104,7 @@ const VacancySingle = () => {
     if (productData && vacancies.length > 0) {
       getRelatedVacancies();
     }
+    setMail();
   }, [productData, vacancies]);
 
   if (loading) {
@@ -107,9 +116,7 @@ const VacancySingle = () => {
       <div className="top">
         <div className="pre-detail mt-3">
           <div>
-            {categoryName && (
-              <Breadcrumb path={`/Главнная/Вакансии/${categoryName}`} />
-            )}
+            {categoryName && <Breadcrumb path={`Category: ${categoryName}`} />}
           </div>
         </div>
 
@@ -133,7 +140,7 @@ const VacancySingle = () => {
                 <div className="place-time text-xs py-7 flex flex-col gap-3">
                   <h5>{productData.location || 'Location'}</h5>
                   <p>
-                    Обновлено:{' '}
+                    Обновлено:
                     {new Date(
                       productData.createdAt?.toDate()
                     ).toLocaleDateString()}
@@ -187,7 +194,7 @@ const VacancySingle = () => {
               </div>
             </div>
 
-            <div className="right border border-b-0 h-96 p-8 text-xs text-neutral-500 w-[485px]">
+            <div className="right border border-b-0 h-80 p-8 text-xs text-neutral-500 w-[485px]">
               <h1 className="uppercase font-bold text-base">Компания</h1>
               <div className="middle flex gap-8 items-center my-7">
                 <img
@@ -208,13 +215,36 @@ const VacancySingle = () => {
 
               <div className="bottom flex flex-col gap-5">
                 <h3 className="uppercase font-bold text-base">Contact</h3>
-                <p>
-                  Войдите в личный кабинет или зарегистрируйтесь для просмотра
-                  контактов работодателя.
-                </p>
-                <button className="text-green-500 border border-green-500 h-10 w-[88px]">
-                  Войти
-                </button>
+                <div className="flex h-16 items-center justify-between">
+                  <div className="flex gap-5">
+                    <div className="bg-[#F3F6F9] size-8 flex items-center justify-center rounded-lg">
+                      <EmailIcon className="size-5" />
+                    </div>
+                    <div>
+                      {mail ? (
+                        <span className="font-bold underline">
+                          {productData.email}
+                        </span>
+                      ) : (
+                        <span className="font-bold underline">
+                          E-poçtu göstər
+                        </span>
+                      )}
+
+                      <p className="text">Epoçt ünvanı</p>
+                    </div>
+                  </div>
+                  <div
+                    className="bg-[#F3F6F9] size-8 flex items-center justify-center rounded-lg cursor-pointer"
+                    onClick={showMail}
+                  >
+                    {mail ? (
+                      <LockOpenOutlinedIcon className="size-5" />
+                    ) : (
+                      <LockOutlinedIcon className="size-5" />
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -7,11 +7,12 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { setDoc, doc } from 'firebase/firestore';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Roles from '../components/Role/Roles';
 
 const Register = () => {
   const [isWorker, setIsWorker] = useState(false);
+  const navigate = useNavigate();
 
   const onSubmit = async (values, actions) => {
     try {
@@ -26,6 +27,8 @@ const Register = () => {
       toast.success('User registered successfully!', {
         position: 'top-center',
       });
+      navigate(`/login`);
+
       actions.resetForm();
     } catch (error) {
       toast.error(error.message, { position: 'bottom-center' });

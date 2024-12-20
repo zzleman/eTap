@@ -47,8 +47,22 @@ const Routers = () => {
           </RequireAuth>
         }
       />
-      <Route path="/vacancies/:categoryId/:id" element={<VacancySingle />} />
-      <Route path="/resumes/:id" element={<ResumeSingle />} />
+      <Route
+        path="/vacancies/:categoryId/:id"
+        element={
+          <RequireAuth>
+            <VacancySingle />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/resumes/:id"
+        element={
+          <RequireAuth>
+            <ResumeSingle />
+          </RequireAuth>
+        }
+      />
 
       <Route
         path="/createResumes"
@@ -66,9 +80,23 @@ const Routers = () => {
           </RequireAuth>
         }
       />
-      <Route path="/dashboard" element={<VacanciesDashboard />} />
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth>
+            <VacanciesDashboard />
+          </RequireAuth>
+        }
+      />
 
-      <Route path="/companyDetails" element={<Company />} />
+      <Route
+        path="/companyDetails"
+        element={
+          <RequireAuth>
+            <Company />
+          </RequireAuth>
+        }
+      />
     </Routes>
   );
 };

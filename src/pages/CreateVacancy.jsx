@@ -62,7 +62,7 @@ const CreateVacancy = () => {
           toast.error('Please create your company details first.', {
             position: 'top-center',
           });
-          navigate('/company');
+          navigate('/companyDetails');
         }
       }
     } catch (error) {

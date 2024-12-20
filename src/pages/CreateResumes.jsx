@@ -115,10 +115,10 @@ const CreateResumes = () => {
     }
     return obj;
   }
+
   const setNestedValues = (data, parentKey = '') => {
     Object.entries(data).forEach(([key, value]) => {
       const fieldName = parentKey ? `${parentKey}.${key}` : key;
-
       if (
         typeof value === 'object' &&
         value !== null &&
@@ -254,7 +254,6 @@ const CreateResumes = () => {
   }
   return (
     <div className="px-36">
-      <p>home/ vakansiya / dizayn</p>
       <form onSubmit={handleSubmit(onSubmit, debugErrors)}>
         <div className="form-main w-12/12 flex gap-24">
           <div className="left w-6/12">
@@ -487,6 +486,17 @@ const CreateResumes = () => {
                   <option value=">5">Более 5 лет</option>
                 </FormSelect>
               </div>
+              <div className="resume-item flex flex-col gap-3 col-span-6">
+                <label className="font-semibold">Portfolio*</label>
+                <FormField
+                  placeholder="Enter URL to your portfolio"
+                  type="text"
+                  {...register('portfolio')}
+                />
+                {errors.name && (
+                  <div className="text-red-500">{errors.portfolio.message}</div>
+                )}
+              </div>
             </div>
 
             <div className="advanced-areas flex flex-col gap-5">
@@ -505,7 +515,7 @@ const CreateResumes = () => {
                     +Добавить
                   </p>
                 </FormDropdown>
-                {formData.work ? (
+                {formData.work.length > 0 ? (
                   formData.work.map((work, index) => {
                     return (
                       <div key={index} className="advanced-open">
@@ -709,7 +719,7 @@ const CreateResumes = () => {
                     );
                   })
                 ) : (
-                  <p>no work data found</p>
+                  <p></p>
                 )}
               </div>
               <div className="advanced-item w-[635px] text-nowrap">
@@ -1028,11 +1038,11 @@ const CreateResumes = () => {
           </div>
           <div className="right w-6/12 my-16">
             <div className="profile-pic bg-[#eeeeee] size-40 rounded-md border border-yellow-400 flex items-center justify-center">
-              <img
-                className="size-full"
-                src={profilePic ? profilePic : profilePhoto}
-                alt="Profile"
-              />
+              {profilePic ? (
+                <img className="size-full" src={profilePic} alt="Profile" />
+              ) : (
+                <img className="size-28" src={profilePhoto} alt="Profile" />
+              )}
             </div>
 
             <div className="file-upload flex flex-col items-center w-1/3">

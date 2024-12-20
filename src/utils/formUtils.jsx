@@ -19,9 +19,10 @@ export const addInfo = (section, formData, setFormData) => {
   });
 };
 
-export const deleteInfo = (section, id, formData, setFormData) => {
-  setFormData(prevState => ({
-    ...prevState,
-    [section]: prevState[section].filter(item => item.id !== id),
+export const deleteInfo = (type, id, formData, setFormData) => {
+  const updatedData = formData[type].filter(item => item.id !== id);
+  setFormData(prev => ({
+    ...prev,
+    [type]: updatedData,
   }));
 };

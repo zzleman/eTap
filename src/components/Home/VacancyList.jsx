@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
 
 const VacancyList = () => {
   const [vacancies, setVacancies] = useState([]);
+  const navigate = useNavigate();
 
   const getTimeAgo = timestamp => {
     if (!timestamp) {
@@ -38,6 +40,12 @@ const VacancyList = () => {
     setVacancies(vacanciesData);
   };
 
+  const navigateToVacancy = vacancyId => {
+    navigate(`/vacancies/all/${vacancyId}`);
+  };
+  const navigateButton = () => {
+    navigate(`/vacancies`);
+  };
   useEffect(() => {
     getVacancies();
   }, []);
@@ -52,7 +60,8 @@ const VacancyList = () => {
           vacancies.slice(0, 6).map(vacancy => (
             <div
               key={vacancy.id}
-              className="item flex flex-col gap-4 p-5 border"
+              className="item flex flex-col gap-4 p-5 border cursor-pointer hover:bg-slate-100"
+              onClick={() => navigateToVacancy(vacancy.id)}
             >
               <h5 className="font-bold">{vacancy.title}</h5>
               <p className="w-[104px] h-10 bg-[#FFEBA8] font-bold text-sm flex items-center justify-center rounded-sm">
@@ -68,7 +77,10 @@ const VacancyList = () => {
             </div>
           ))}
       </div>
-      <button className="border border-black w-36 h-10 mx-auto text-sm mt-5">
+      <button
+        className="border border-black w-36 h-10 mx-auto text-sm mt-5"
+        onClick={navigateButton}
+      >
         Смотреть все
       </button>
     </div>

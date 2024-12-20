@@ -52,7 +52,7 @@ const Header = () => {
           if (userData.isWorker) {
             navigate('/createResumes');
           } else {
-            navigate('/companyDetails');
+            navigate('/dashboard');
           }
         } else {
           toast.error('User data not found!', { position: 'bottom-center' });
@@ -89,32 +89,20 @@ const Header = () => {
           </Link>
         </div>
         <div className="right flex gap-7 items-center">
-          <ul className="hidden lg:flex gap-5">
-            <li>
-              <Link
-                className="text-white hover:text-neutral-400"
-                onClick={handleProfileClick}
-              >
-                Профиль
-              </Link>
-            </li>
-
-            {isWorker === false && (
-              <Link
-                className="text-white hover:text-neutral-400"
-                to="/createVacancy"
-              >
-                Create a Vacancy
-              </Link>
-            )}
-
+          <ul className="hidden lg:flex gap-5 my-2">
+            <Link
+              className="text-white hover:text-neutral-400"
+              onClick={handleProfileClick}
+            >
+              Профиль
+            </Link>
             <Link to="/vacancies" className="text-white hover:text-neutral-400">
               Вакансии
             </Link>
             <Link to="/resumes" className="text-white hover:text-neutral-400">
               Резюме
             </Link>
-            <li>Избранное</li>
+            <Link className="text-white hover:text-neutral-400">Избранное</Link>
           </ul>
 
           <div className="lg:hidden">
@@ -142,14 +130,7 @@ const Header = () => {
                 >
                   Профиль
                 </Link>
-                {isWorker === false && (
-                  <Link
-                    className="text-[#563D7C] hover:text-neutral-400 text-lg"
-                    to="/createVacancy"
-                  >
-                    Create a Vacancy
-                  </Link>
-                )}
+
                 <Link
                   to="/vacancies"
                   className="text-[#563D7C] hover:text-neutral-400 text-lg"
@@ -174,7 +155,7 @@ const Header = () => {
               onClick={handleLogout}
               className="w-32 h-7 border rounded-sm"
             >
-              Подписаться
+              Logout
             </button>
             <button className="size-7 border rounded-sm">RU</button>
           </div>

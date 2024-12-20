@@ -26,8 +26,12 @@ const VacancyCategories = () => {
     }
   };
 
-  const handleNavigationToVacancies = () => {
-    navigate(`/vacancies/`);
+  const handleNavigationToVacancies = categoryId => {
+    navigate(`/vacancies?category=${categoryId}`);
+  };
+
+  const handleButtonNavigation = () => {
+    navigate(`/vacancies`);
   };
 
   useEffect(() => {
@@ -45,16 +49,20 @@ const VacancyCategories = () => {
         {categories &&
           categories.slice(0, 14).map(category => (
             <li
-              className="flex items-start gap-3 relative pl-6 cursor-pointer"
+              className="flex items-start gap-3 relative pl-6 cursor-pointer hover:text-indigo-600"
               key={category.id}
-              onClick={handleNavigationToVacancies}
+              onClick={() => handleNavigationToVacancies(category.id)}
             >
               <span className="absolute left-0 top-0.5 text-black">•</span>
               {category.name}
             </li>
           ))}
       </ul>
-      <button className="border border-black w-36 h-10 mx-auto text-sm">
+
+      <button
+        className="border border-black w-36 h-10 mx-auto text-sm"
+        onClick={handleButtonNavigation}
+      >
         Смотреть все
       </button>
     </div>
