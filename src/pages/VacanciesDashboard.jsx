@@ -127,7 +127,6 @@ const VacanciesDashboard = () => {
                 </div>
               </div>
               <div className="right flex gap-2">
-                {/* You could implement an edit functionality here if needed */}
                 {/* <EditOutlinedIcon style={{ fontSize: 'large' }} /> */}
                 <DeleteOutlineOutlinedIcon
                   style={{ fontSize: 'large', color: 'red' }}

@@ -15,7 +15,7 @@ export const schema = z.object({
 
   workShift: z
     .string()
-    .min(1, { message: 'Job shift is required' }) // Ensures the field is not empty
+    .min(1, { message: 'Job shift is required' })
     .refine(val => ['morning', 'afternoon', 'evening'].includes(val), {
       message: 'Invalid work shift',
     }),
